@@ -1,9 +1,39 @@
 const DAY_MILLISECOND = 1000 * 60 * 60 * 24;
 
+
+
+/* Page */
+
+const deviceWidth = document.documentElement.clientWidth;
+let main = document.querySelector('.main');
+let pages = document.querySelectorAll('.page');
+let menu = document.querySelector('.menu');
+let currentMenu = menu.children[0];
+
+const clickMenu = (menu, index) => {
+    if (menu.classList.contains('active')) return;
+
+    currentMenu.classList.remove('active');
+    menu.classList.add('active');
+    currentMenu = menu;
+
+    movePageWidthIndex(index);
+}
+
+const movePageWidthIndex = index => {
+    main.style.left = `${-deviceWidth * index}px`;
+}
+
+menu.children[0].addEventListener('click', event => clickMenu(menu.children[0], 0));
+menu.children[1].addEventListener('click', event => clickMenu(menu.children[1], 1));
+menu.children[2].addEventListener('click', event => clickMenu(menu.children[2], 2));
+menu.children[3].addEventListener('click', event => clickMenu(menu.children[3], 3));
+
+/* Clock */
+
 let hands = document.querySelector('.hand').children;
 let date = document.querySelector('.date');
 let time = document.querySelector('.time');
-
 
 const rotateElem = (elem, deg) => {
     elem.style.transform = `rotate(${deg}deg)`;
@@ -52,6 +82,13 @@ async function testSharp() {
         rotateElem(hands[2], i);
     }
 }
+
+
+// prevent default events
+document.ondragstart = () => false;
+document.onselectstart = () => false;
+document.oncontextmenu = () => false;
+
 
 updateClock();
 startClock();

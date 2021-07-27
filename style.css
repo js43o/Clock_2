@@ -239,17 +239,125 @@ body {
     font-size: 48px;
 }
 
-#page_alarm .add {
+.alarm_add {
     text-align: center;
 }
 
-#page_alarm .add i {
+.alarm_add i {
     padding: 16px;
     border: 1px solid white;
     border-radius: 50%;
     cursor: pointer;
 }
 
-#page_alarm .add i:active {
+.alarm_add i:active {
     opacity: 0.5;
+}
+
+.alarm_list {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 8px;
+}
+
+.alarm_list li {
+    width: 100%;
+    height: 200px;
+    border-radius: 16px;
+    background-color: #222222;
+}
+
+.alarm_modal {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    position: fixed;
+    top: 100%;
+    width: 95%;
+    max-width: 400px;
+    height: 400px;
+    padding: 16px;
+    border: 1px solid white;
+    border-radius: 8px;
+    background-color: #111111;
+    opacity: 0;
+    transition: top ease-out 0.4s, opacity ease-out 0.4s;
+}
+
+.alarm_modal.opened {
+    top: 25%;
+    opacity: 1;
+}
+
+.alarm_modal .time {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    font-size: 48px;
+}
+
+.alarm_modal .time div {
+    border: 1px solid #aaaaaa;
+    width: 140px;
+    height: 100px;
+    margin: 0 8px;
+}
+
+.alarm_modal .days {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    list-style: none;
+}
+
+.alarm_modal .days li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.alarm_modal .days li:active {
+    border: 1px solid white;
+    font-weight: bold;
+}
+
+.alarm_modal label[for="repeat"] {
+    align-self: flex-start;
+}
+
+.alarm_modal .buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+.alarm_modal .buttons * {
+    width: 100%;
+    height: 60px;
+    border: 1px solid white;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.alarm_modal .buttons .cancel {
+    color: white;
+    background-color: #111111;
+}
+
+.alarm_modal .buttons .ok {
+    color: black;
+    background-color: white;
 }

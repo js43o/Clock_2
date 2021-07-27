@@ -24,10 +24,10 @@ const movePageWidthIndex = index => {
     main.style.left = `${-deviceWidth * index}px`;
 }
 
-menu.children[0].addEventListener('click', event => clickMenu(menu.children[0], 0));
-menu.children[1].addEventListener('click', event => clickMenu(menu.children[1], 1));
-menu.children[2].addEventListener('click', event => clickMenu(menu.children[2], 2));
-menu.children[3].addEventListener('click', event => clickMenu(menu.children[3], 3));
+for (let i = 0; i < menu.children.length; i++) {
+    menu.children[i].addEventListener('click', event => clickMenu(menu.children[i], i));
+}
+
 
 /* Clock */
 
@@ -68,7 +68,6 @@ const startClock = () => {
     setInterval(updateClock, 1000);
 }
 
-
 async function testSharp() {
     async function* genArr() {
         for (let i of [350, 355, 360, 5, 10]) {
@@ -83,6 +82,29 @@ async function testSharp() {
     }
 }
 
+
+/* Alarm */
+
+let alarmList = document.querySelector('.alarm_list');
+let alarmAdd = document.querySelector('.alarm_add');
+let alarmModal = document.querySelector('.alarm_modal');
+let alarms = [];
+
+const addAlarmAction = () => {
+    openAlarmModal();
+}
+
+const openAlarmModal = () => {
+    alarmModal.classList.add('opened');
+}
+
+const closeAlarmModal = () => {
+    alarmModal.classList.remove('opened');
+}
+
+alarmAdd.addEventListener('click', addAlarmAction);
+
+alarmModal.querySelector('.cancel').onclick = closeAlarmModal;
 
 // prevent default events
 document.ondragstart = () => false;

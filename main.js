@@ -102,9 +102,52 @@ const closeAlarmModal = () => {
     alarmModal.classList.remove('opened');
 }
 
+
+/* Alarm_dragging */
+
+let timeSelectors = document.querySelectorAll('.time_selector');
+let dialValues = { meridiem: 0, hour: 0, minute: 0 };
+let dialLimits = { meridiem: 1, hour: 11, minute: 59 };
+const DIAL_HEIGHT = 64;
+
+for (let timeSelector of timeSelectors) {
+    let dial = timeSelector.children[0];
+
+    dial.onpointerdown = event => {
+        let dialName = dial.className;
+        let pos = dialValues[dialName];
+        let downY = event.clientY;
+        let shiftY = pos + event.clientY;
+
+        dial.classList.add('no-transition');
+
+        dial.onpointermove = event => {
+            pos = Math.max(Math.min(shiftY - event.clientY, 0), -dialLimits[dialName] * DIAL_HEIGHT);
+            dial.style.top = shiftY - event.clientY + 'px';
+        }
+
+        dial.onpointerup = event => {
+            
+            dial.classList.remove('no-transition');
+
+            pos = Math.round(pos / DIAL_HEIGHT) * DIAL_HEIGHT;
+            dialValues[dialName] = pos;
+            dial.style.top = pos + 'px';
+
+            dial.onpointermove = null;
+            dial.onpointerup = null;
+        }
+    }
+}
+
+
 alarmAdd.addEventListener('click', addAlarmAction);
 
 alarmModal.querySelector('.cancel').onclick = closeAlarmModal;
+
+
+
+
 
 // prevent default events
 document.ondragstart = () => false;

@@ -103,48 +103,78 @@ const closeAlarmModal = () => {
 }
 
 
-/* Alarm_dragging */
+/* Alarm_Modal */
 
 let timeSelectors = document.querySelectorAll('.time_selector');
 let dialValues = { meridiem: 0, hour: 0, minute: 0 };
-let dialLimits = { meridiem: 1, hour: 11, minute: 59 };
+const DIAL_LIMITS = { meridiem: 1, hour: 11, minute: 59 };
 const DIAL_HEIGHT = 64;
+let isRepeat = false;
 
 for (let timeSelector of timeSelectors) {
     let dial = timeSelector.children[0];
+    let dialName = dial.className;
+    let pos = dialValues[dialName];
 
-    dial.onpointerdown = event => {
-        let dialName = dial.className;
-        let pos = dialValues[dialName];
-        let downY = event.clientY;
-        let shiftY = pos + event.clientY;
+    dial.onpointerdown = downEvent => {
+        let shiftY = downEvent.clientY - pos;
 
         dial.classList.add('no-transition');
 
-        dial.onpointermove = event => {
-            pos = Math.max(Math.min(shiftY - event.clientY, 0), -dialLimits[dialName] * DIAL_HEIGHT);
-            dial.style.top = shiftY - event.clientY + 'px';
+        document.onpointermove = moveEvent => {
+            pos = Math.max(Math.min(moveEvent.clientY - shiftY, 0), -DIAL_LIMITS[dialName] * DIAL_HEIGHT);
+            dial.style.top = moveEvent.clientY - shiftY + 'px';
         }
 
-        dial.onpointerup = event => {
-            
+        document.onpointerup = () => {
             dial.classList.remove('no-transition');
 
             pos = Math.round(pos / DIAL_HEIGHT) * DIAL_HEIGHT;
             dialValues[dialName] = pos;
             dial.style.top = pos + 'px';
 
-            dial.onpointermove = null;
-            dial.onpointerup = null;
+            document.onpointermove = null;
+            document.onpointerup = null;
         }
     }
 }
 
+let days = document.querySelector('.days');
+let selectedDays = [ false, false, false, false, false, false, false ];
+const DAYS = [ '일', '월', '화', '수', '목', '금', '토' ];
+for (let day of days.children) {
+    day.onclick = () => {
+        day.classList.toggle('active');
+        let index = Array.from(days.children).indexOf(day);
+        selectedDays[index] = !selectedDays[index];
+    }
+}
 
 alarmAdd.addEventListener('click', addAlarmAction);
-
 alarmModal.querySelector('.cancel').onclick = closeAlarmModal;
+alarmModal.querySelector('.ok').onclick = () => {
 
+    let newAlarm = {
+        hour: -(12 * (dialValues.meridiem / 64) + (dialValues.hour / 64)),
+        minute: -dialValues.minute / 64,
+        days: [],
+        repeat: isRepeat,
+    }
+
+    console.log(selectedDays);
+    for (let i = 0; i < 7; i++) {
+        if (selectedDays[i]) newAlarm.days.push(DAYS[i]);
+    }
+
+    alarms.push(newAlarm);
+
+    let alarmLi = document.createElement('li');
+    alarmLi.textContent = `${newAlarm.hour < 10 ? '0' + newAlarm.hour : newAlarm.hour}:${
+        newAlarm.minute < 10 ? '0' + newAlarm.minute : newAlarm.minute }
+    (${newAlarm.days})
+    ${newAlarm.isRepeat ? '반복' : '한 번'}`;
+    alarmList.append(alarmLi);
+}
 
 
 

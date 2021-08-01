@@ -73,92 +73,86 @@
             <div class="alarm_modal">
                 <div class="time">
                     <div class="time_cover"></div>
-                    <div class="time_selector">
-                        <div class="meridiem">
-                            <div>AM</div>
-                            <div>PM</div>
-                        </div>
+                    <div class="time_selector meridiem">
+                        <div>AM</div>
+                        <div>PM</div>
                     </div>
-                    <div class="time_selector">
-                        <div class="hour">
-                            <div>12</div>
-                            <div>01</div>
-                            <div>02</div>
-                            <div>03</div>
-                            <div>04</div>
-                            <div>05</div>
-                            <div>06</div>
-                            <div>07</div>
-                            <div>08</div>
-                            <div>09</div>
-                            <div>10</div>
-                            <div>11</div>
-                        </div>
+                    <div class="time_selector hour">
+                        <div>12</div>
+                        <div>01</div>
+                        <div>02</div>
+                        <div>03</div>
+                        <div>04</div>
+                        <div>05</div>
+                        <div>06</div>
+                        <div>07</div>
+                        <div>08</div>
+                        <div>09</div>
+                        <div>10</div>
+                        <div>11</div>
                     </div>
                     :
-                    <div class="time_selector">
-                        <div class="minute">
-                            <div>00</div>
-                            <div>01</div>
-                            <div>02</div>
-                            <div>03</div>
-                            <div>04</div>
-                            <div>05</div>
-                            <div>06</div>
-                            <div>07</div>
-                            <div>08</div>
-                            <div>09</div>
-                            <div>10</div>
-                            <div>11</div>
-                            <div>12</div>
-                            <div>13</div>
-                            <div>14</div>
-                            <div>15</div>
-                            <div>16</div>
-                            <div>17</div>
-                            <div>18</div>
-                            <div>19</div>
-                            <div>20</div>
-                            <div>21</div>
-                            <div>22</div>
-                            <div>23</div>
-                            <div>24</div>
-                            <div>25</div>
-                            <div>26</div>
-                            <div>27</div>
-                            <div>28</div>
-                            <div>29</div>
-                            <div>30</div>
-                            <div>31</div>
-                            <div>32</div>
-                            <div>33</div>
-                            <div>34</div>
-                            <div>35</div>
-                            <div>36</div>
-                            <div>37</div>
-                            <div>38</div>
-                            <div>39</div>
-                            <div>40</div>
-                            <div>41</div>
-                            <div>42</div>
-                            <div>43</div>
-                            <div>44</div>
-                            <div>45</div>
-                            <div>46</div>
-                            <div>47</div>
-                            <div>48</div>
-                            <div>49</div>
-                            <div>50</div>
-                            <div>51</div>
-                            <div>52</div>
-                            <div>53</div>
-                            <div>54</div>
-                            <div>55</div>
-                            <div>56</div>
-                            <div>57</div>
-                            <div>58</div>
-                            <div>59</div>
-                        </div>
+                    <div class="time_selector minute">
+                        <div>00</div>
+                        <div>01</div>
+                        <div>02</div>
+                        <div>03</div>
+                        <div>04</div>
+                        <div>05</div>
+                        <div>06</div>
+                        <div>07</div>
+                        <div>08</div>
+                        <div>09</div>
+                        <div>10</div>
+                        <div>11</div>
+                        <div>12</div>
+                        <div>13</div>
+                        <div>14</div>
+                        <div>15</div>
+                        <div>16</div>
+                        <div>17</div>
+                        <div>18</div>
+                        <div>19</div>
+                        <div>20</div>
+                        <div>21</div>
+                        <div>22</div>
+                        <div>23</div>
+                        <div>24</div>
+                        <div>25</div>
+                        <div>26</div>
+                        <div>27</div>
+                        <div>28</div>
+                        <div>29</div>
+                        <div>30</div>
+                        <div>31</div>
+                        <div>32</div>
+                        <div>33</div>
+                        <div>34</div>
+                        <div>35</div>
+                        <div>36</div>
+                        <div>37</div>
+                        <div>38</div>
+                        <div>39</div>
+                        <div>40</div>
+                        <div>41</div>
+                        <div>42</div>
+                        <div>43</div>
+                        <div>44</div>
+                        <div>45</div>
+                        <div>46</div>
+                        <div>47</div>
+                        <div>48</div>
+                        <div>49</div>
+                        <div>50</div>
+                        <div>51</div>
+                        <div>52</div>
+                        <div>53</div>
+                        <div>54</div>
+                        <div>55</div>
+                        <div>56</div>
+                        <div>57</div>
+                        <div>58</div>
+                        <div>59</div>
                     </div>
                 </div>
                 <ul class="days">
@@ -170,19 +164,19 @@
                     <li>금</li>
                     <li>토</li>
                 </ul>
-                <label for="repeat"><input type="checkbox" id="repeat" class="repeat">반복하기</label>
+                <input type="text" name="alarm_name" placeholder="알람이름">
+                <label>반복하기<input type="checkbox" name="alarm_repeat"></label>
                 <div class="buttons">
                     <input type="button" class="cancel button" value="취소">
                     <input type="submit" class="ok button" value="확인">
                 </div>
             </div>
             <ul class="alarm_list">
-
+                <li class="alarm_add button">
+                    <i class="fas fa-plus"></i>
+                    <p>알람 추가</p>
+                </li>
             </ul>
-            <div class="alarm_add button">
-                <i class="fas fa-plus"></i>
-                <p>알람 추가</p>
-            </div>
         </div>
         <div id="page_stopwatch" class="page">
             스톱워치

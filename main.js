@@ -82,7 +82,7 @@ async function testSharp() {
 /* Alarm */
 
 const DIAL_LIMITS = { meridiem: 1, hour: 11, minute: 59 };
-const DIAL_HEIGHT = 64;
+const DIAL_HEIGHT = 77;
 
 let alarms = [];
 let dialValues = { meridiem: 0, hour: 0, minute: 0 };
@@ -91,15 +91,18 @@ let selectedDays = new Set();
 let alarmList = document.querySelector('.alarm_list');
 let alarmAddButton = document.querySelector('.alarm_add');
 let alarmModal = document.querySelector('.alarm_modal');
-let dials = document.querySelectorAll('.time_selector > div');
+let dials = document.querySelectorAll('.time .time_selector');
 let days = document.querySelectorAll('.days li');
-let repeatBox = document.querySelector('.repeat');
+let alarmName = document.querySelector('input[name="alarm_name"]');
+let repeatBox = document.querySelector('input[name="alarm_repeat"]');
 
 const openAlarmModal = () => {
+    if (alarmModal.classList.contains('opened')) return;
     alarmModal.classList.add('opened');
 }
 
 const closeAlarmModal = () => {
+    if (!alarmModal.classList.contains('opened')) return;
     alarmModal.classList.remove('opened');
     setTimeout(resetAlarmModal, 400);
 }
@@ -120,9 +123,10 @@ const resetDialValues = () => {
 
 const addAlarm = () => {
     let newAlarm = {
-        hour: -(12 * (dialValues.meridiem / 64) + (dialValues.hour / 64)),
-        minute: -dialValues.minute / 64,
+        hour: -(12 * (dialValues.meridiem / DIAL_HEIGHT) + (dialValues.hour / DIAL_HEIGHT)),
+        minute: -dialValues.minute / DIAL_HEIGHT,
         days: [],
+        name: alarmName.value,
         isRepeat: repeatBox.checked
     }
     selectedDays.forEach(day => newAlarm.days.push(day));
@@ -135,18 +139,29 @@ const addAlarm = () => {
 const addAlarmItem = alarm => {
     let alarmItem = document.createElement('li');
 
+    let alarmHTML = `
+    <span style="font-size: 32px; font-family: 'Inconsolata', monospace">${
+        alarm.hour < 10 ? '0' + alarm.hour : alarm.hour}:${
+        alarm.minute < 10 ? '0' + alarm.minute : alarm.minute}</span>
+    <span>${alarm.name}</span>
+    <div style="font-size: 14px">${alarm.days.join(', ')} - ${alarm.isRepeat ? '반복' : '한 번'}</div>
+    `;
+ /*
     alarmItem.textContent = `${
         alarm.hour < 10 ? '0' + alarm.hour : alarm.hour}:${
         alarm.minute < 10 ? '0' + alarm.minute : alarm.minute}
         [${alarm.days.join(', ')}]
         ${alarm.isRepeat ? '반복' : '한 번'}`;
+*/
+    
+    alarmItem.insertAdjacentHTML('beforeend', alarmHTML);
 
-    alarmList.append(alarmItem);
+    alarmList.lastElementChild.before(alarmItem);
 }
 
 
 dials.forEach(dial => {
-    let dialName = dial.className;
+    let dialName = dial.className.split(' ')[1];
 
     dial.onpointerdown = downEvent => {
         dial.classList.add('no-transition');
@@ -182,6 +197,8 @@ alarmModal.querySelector('.ok').onclick = () => {
     addAlarmItem(addAlarm());
     closeAlarmModal();
 }
+
+
 
 
 // prevent default events

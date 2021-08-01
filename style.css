@@ -2,6 +2,9 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    touch-action: pan-y;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-tap-highlight-color: transparent;
 }
 
 body, html {
@@ -34,14 +37,16 @@ body {
     align-items: center;
     bottom: 0;
     width: 100%;
-    padding: 16px;
+    padding: 8px;
 }
 
 .menu div {
-    box-sizing: border-box;
-    padding: 4px 8px;
+    padding: 4px;
+    width: 96px;
+    text-align: center;
     color: #aaaaaa;
     cursor: pointer;
+    transition:  color 0.2s;
 }
 
 .menu div.selected {
@@ -258,14 +263,20 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
+    height: 100%;
     padding: 8px;
 }
 
 .alarm_list li {
     width: 100%;
-    height: 80px;
-    border-radius: 16px;
+    padding: 8px;
+    margin: 4px 0;
+    border-radius: 8px;
     background-color: #222222;
+}
+
+.alarm_list li:last-child {
+    background-color: transparent;
 }
 
 .alarm_modal {
@@ -316,19 +327,14 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    width: 33%;
-    height: 100%;
-    touch-action: none;
-    cursor: ns-resize;
-}
-
-.alarm_modal .time .time_selector * {
     position: relative;
-    height: 64px;
+    width: 33%;
+    height: 77px;
+    cursor: ns-resize;
     transition: top 0.2s;
 }
 
-.alarm_modal .time .time_selector > *.no-transition {
+.alarm_modal .time .time_selector.no-transition {
     transition: none;
 }
 
@@ -349,15 +355,33 @@ body {
     height: 40px;
     border: 1px solid #ffffff00;
     border-radius: 50%;
-    color: #aaaaaa;
+    opacity: 0.5;
     cursor: pointer;
-    transition: border 0.2s, color 0.2s;
+    transition: border 0.2s, opacity 0.2s;
+}
+
+.alarm_modal .days li:first-child {
+    color: rgb(255, 64, 64);
+}
+
+.alarm_modal .days li:last-child {
+    color: rgb(64, 192, 255);
 }
 
 .alarm_modal .days li.selected {
     border-color: white;
-    color: white;
     font-weight: bold;
+    opacity: 1;
+}
+
+.alarm_modal input[name="alarm_name"] {
+    width: 100%;
+    height: 36px;
+    border: none;
+    border-bottom: 1px solid white;
+    color: white;
+    background-color: transparent;
+    font-size: 24px;
 }
 
 .alarm_modal label[for="repeat"] {

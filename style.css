@@ -44,15 +44,11 @@ body {
     cursor: pointer;
 }
 
-.menu div.active {
+.menu div.selected {
     border: 1px solid white;
     border-radius: 4px;
     color: white;
     font-weight: bold;
-}
-
-.menu div:active {
-    opacity: 0.5;
 }
 
 .main {
@@ -73,6 +69,11 @@ body {
     width: 100%;
     height: 100%;
     flex-shrink: 0;
+    overflow-y: auto;
+}
+
+.button:active {
+    opacity: 0.5;
 }
 
 .clock {
@@ -253,16 +254,11 @@ body {
     cursor: pointer;
 }
 
-.alarm_add i:active {
-    opacity: 0.5;
-}
-
 .alarm_list {
     display: flex;
     flex-direction: column;
     width: 100%;
     padding: 8px;
-    overflow-y: scroll;
 }
 
 .alarm_list li {
@@ -300,16 +296,16 @@ body {
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    position: relative;
     width: 100%;
-    font-size: 48px;
+    font-size: 52px;
     overflow: hidden;
 }
 
-.alarm_modal .time_cover {
+.alarm_modal .time .time_cover {
     position: absolute;
-    top: 40px;
     width: 100%;
-    height: 120px;
+    height: 100%;
     background: linear-gradient(#111111 0%, #11111100 30%, #11111100 70%, #111111 100%);
     z-index: 5;
     pointer-events: none;
@@ -321,15 +317,14 @@ body {
     justify-content: flex-start;
     align-items: center;
     width: 33%;
-    height: 120px;
-    margin: 0 8px;
+    height: 100%;
     touch-action: none;
+    cursor: ns-resize;
 }
 
 .alarm_modal .time .time_selector * {
     position: relative;
     height: 64px;
-    transform: translateY(10px);
     transition: top 0.2s;
 }
 
@@ -352,13 +347,16 @@ body {
     align-items: center;
     width: 40px;
     height: 40px;
-    padding: 8px;
+    border: 1px solid #ffffff00;
     border-radius: 50%;
+    color: #aaaaaa;
     cursor: pointer;
+    transition: border 0.2s, color 0.2s;
 }
 
-.alarm_modal .days li.active {
-    border: 1px solid white;
+.alarm_modal .days li.selected {
+    border-color: white;
+    color: white;
     font-weight: bold;
 }
 

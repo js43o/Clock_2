@@ -165,8 +165,12 @@
                     <li>토</li>
                 </ul>
                 <input type="text" name="alarm_name" placeholder="알람이름">
-                <input type="checkbox" name="alarm_repeat" id="alarm_repeat">
-                <label for="alarm_repeat">반복하기</label>
+                <div class="checkbox">
+                    <input type="checkbox" name="alarm_enabled" id="alarm_enabled" checked>
+                    <label for="alarm_enabled">활성화</label>
+                    <input type="checkbox" name="alarm_repeated" id="alarm_repeated">
+                    <label for="alarm_repeated">반복하기</label>
+                </div>
                 <div class="buttons">
                     <input type="button" class="cancel button" value="취소">
                     <input type="submit" class="ok button" value="확인">

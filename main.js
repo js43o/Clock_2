@@ -95,7 +95,8 @@ let alarmModal = document.querySelector('.alarm_modal');
 let dials = document.querySelectorAll('.time .time_selector');
 let days = document.querySelectorAll('.days li');
 let alarmName = document.querySelector('input[name="alarm_name"]');
-let repeatBox = document.querySelector('input[name="alarm_repeat"]');
+let isRepeated = document.querySelector('input[name="alarm_repeated"]');
+let isEnabled = document.querySelector('input[name="alarm_enabled"]');
 
 const openAlarmModal = () => {
     if (alarmModal.classList.contains('opened')) return;
@@ -109,59 +110,94 @@ const closeAlarmModal = () => {
 };
 
 const resetAlarmModal = () => {
-    resetDialValues();
+    setAlarmModal({
+        enable: true,
+        meridiem: 0,
+        hour: 0,
+        minute: 0,
+        days: [],
+        name: '',
+        repeat: false
+    })
     selectedDays.clear();
-    dials.forEach(item => item.style.top = '');
     days.forEach(item => item.classList.remove('selected'));
-    alarmName.value = '';
-    repeatBox.checked = false;
 };
 
-const resetDialValues = () => {
-    dialValues.meridiem = 0;
-    dialValues.hour = 0;
-    dialValues.minute = 0;
+/*
+const resetAlarmModal = () => {
+    setDialValues(0, 0, 0);
+    selectedDays.clear();
+
+    dials.forEach(dial => dial.style.top = '0px');
+    days.forEach(item => item.classList.remove('selected'));
+    alarmName.value = '';
+    isEnabled.checked = true;
+    isRepeated.checked = false;
+};
+*/
+
+const setAlarmModal = alarm => {
+    setDialValues(alarm.meridiem, alarm.hour, alarm.minute);
+    alarm.days.forEach(day => selectedDays.add(day));
+    
+    dials.forEach(dial => dial.style.top = alarm[dial.className.split(' ')[1]] * DIAL_HEIGHT + 'px');
+    days.forEach(item => alarm.days.includes(item.textContent) ? item.classList.add('selected') : '');
+    alarmName.value = alarm.name;
+    isEnabled.checked = alarm.enable;
+    isRepeated.checked = alarm.repeat;
+}
+
+const setDialValues = (mer, h, m) => {
+    dialValues.meridiem = mer * DIAL_HEIGHT;
+    dialValues.hour = h * DIAL_HEIGHT;
+    dialValues.minute = m * DIAL_HEIGHT;
 };
 
 const addAlarm = () => {
-    let newAlarm = {
-        active: true,
-        hour: -(12 * (dialValues.meridiem / DIAL_HEIGHT) + (dialValues.hour / DIAL_HEIGHT)),
-        minute: -dialValues.minute / DIAL_HEIGHT,
-        days: [],
-        name: alarmName.value,
-        isRepeat: repeatBox.checked
-    }
-    selectedDays.forEach(day => newAlarm.days.push(day));
+    let newAlarm = {};
+    setAlarm(newAlarm);
 
     alarms.push(newAlarm);
 
     return newAlarm;
 };
 
+const setAlarm = alarm => {
+    alarm.checkable = true;    // is detected by alarm checker
+    alarm.meridiem = -dialValues.meridiem / DIAL_HEIGHT;
+    alarm.hour = -(12 * (dialValues.meridiem / DIAL_HEIGHT) + (dialValues.hour / DIAL_HEIGHT));
+    alarm.minute = -dialValues.minute / DIAL_HEIGHT;
+    alarm.name = alarmName.value;
+    alarm.enable = isEnabled.checked;
+    alarm.repeat = isRepeated.checked;
+    alarm.days = [];
+    selectedDays.forEach(day => alarm.days.push(day));
+}
+
 const addAlarmItem = alarm => {
     let alarmItem = document.createElement('li');
     alarmItem.className = 'alarm_item';
+
+    if (!alarm.enable) alarmItem.classList.add('disabled');
 
     let alarmHTML = `
     <div>${alarm.name}</div>
     <div style="font-size: 32px; font-family: 'Inconsolata', monospace">${
         alarm.hour < 10 ? '0' + alarm.hour : alarm.hour}:${
         alarm.minute < 10 ? '0' + alarm.minute : alarm.minute}</div>
-    <div style="font-size: 14px">${alarm.days.sort(compareDays)} - ${alarm.isRepeat ? '반복' : '한 번'}</div>
+    <div style="font-size: 14px">${alarm.days.sort(compareDays)} - ${alarm.repeat ? '반복' : '한 번'}
+    - ${alarm.enable}</div>
     `;
- /*
-    alarmItem.textContent = `${
-        alarm.hour < 10 ? '0' + alarm.hour : alarm.hour}:${
-        alarm.minute < 10 ? '0' + alarm.minute : alarm.minute}
-        [${alarm.days.join(', ')}]
-        ${alarm.isRepeat ? '반복' : '한 번'}`;
-*/
-    
+
     alarmItem.insertAdjacentHTML('beforeend', alarmHTML);
 
     alarmList.lastElementChild.before(alarmItem);
 };
+
+const updateAlarmItems = () => {
+    alarmList.querySelectorAll('li:not(:last-child)').forEach(alarm => alarm.remove());
+    alarms.forEach(alarm => addAlarmItem(alarm));
+}
 
 const compareDays = (a, b) => {
     if (DAYS_NAME.indexOf(a) < DAYS_NAME.indexOf(b)) return -1;
@@ -172,17 +208,24 @@ const compareDays = (a, b) => {
 const checkAlarm = () => {
     let today = new Date();
     alarms.forEach(alarm => {
-        if (alarm.hour === today.getHours() &&
-            alarm.minute === today.getMinutes() &&
-            alarm.days.includes(DAYS_NAME[today.getDay()]) &&
-            alarm.active)
-            alert(`알람! ${alarm.name}`);
+        if (!alarm.enable ||
+            !alarm.checkable ||
+            alarm.hour !== today.getHours() ||
+            alarm.minute !== today.getMinutes() ||
+            !alarm.days.includes(DAYS_NAME[today.getDay()])) return;
 
-        alarm.active = false;
-        if (alarm.isRepeat) setTimeout(() => alarm.active = true, 60000);
+        alert(`알람! ${alarm.name}`);
+        alarm.checkable = false;
+        if (!alarm.repeat) {
+            alarm.enable = false;
+            updateAlarmItems();
+        }
+
+        setTimeout(() => alarm.checkable = true, 60000);
     });
 };
 
+// dial dragging event
 dials.forEach(dial => {
     let dialName = dial.className.split(' ')[1];
 
@@ -214,10 +257,14 @@ days.forEach(day => day.onclick = () => {
 });
 
 
-alarmAddButton.onclick = openAlarmModal;
+alarmAddButton.onclick = () => {
+    openAlarmModal();
+}
+
 alarmModal.querySelector('.cancel').onclick = closeAlarmModal;
 alarmModal.querySelector('.ok').onclick = () => {
-    addAlarmItem(addAlarm());
+    addAlarm();
+    updateAlarmItems();
     closeAlarmModal();
 };
 

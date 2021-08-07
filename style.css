@@ -276,19 +276,19 @@ body {
     background-color: #222222;
     text-align: center;
     cursor: pointer;
+    transition: background-color cubic-bezier(0, 1, 0.75, 1) 0.8s;
 }
 
-.alarm_list li.disabled {
-    color: #aaaaaa;
-}
-
-.alarm_list li:last-child {
+.alarm_list .alarm_add {
     background-color: transparent;
 }
 
-.alarm_list li:not(:last-child):active {
+.alarm_list .alarm_item.disabled {
+    color: #aaaaaa;
+}
+
+.alarm_list .alarm_item.holded {
     background-color: #999999;
-    transition: background-color cubic-bezier(0, 1, 0.75, 1) 0.8s;
 }
 
 .alarm_modal {
@@ -344,6 +344,10 @@ body {
 }
 
 .alarm_modal .time .time_selector div {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    align-items: center;
     height: 77px;
 }
 

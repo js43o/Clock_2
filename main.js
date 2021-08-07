@@ -113,7 +113,7 @@ const resetAlarmModal = () => {
 const setAlarmModal = alarm => {
     setDialValues(alarm.meridiem, alarm.hour, alarm.minute);
     alarm.days.forEach(day => selectedDays.add(day));
-    
+
     dials.forEach(dial => dial.style.top = dialValues[dial.className.split(' ')[1]] + 'px');
     dayItems.forEach(item => alarm.days.includes(item.textContent) ? item.classList.add('selected') : '');
     alarmName.value = alarm.name;
@@ -166,14 +166,20 @@ const addAlarmItem = alarm => {
 };
 
 const updateAlarmItems = () => {
-    alarmList.querySelectorAll('li:not(:last-child)').forEach(alarm => alarm.remove());
+    let alarmItems = alarmList.querySelectorAll('.alarm_item');
+
+    alarmItems.forEach(item => item.remove());
     alarms.forEach(alarm => addAlarmItem(alarm));
 
-    alarmList.querySelectorAll('li:not(:last-child)').forEach((alarm, index) =>
-        alarm.onpointerdown = () => {
-            let timer = setTimeout(() => removeAlarmItem(alarm, index), 800);
+    alarmItems = alarmList.querySelectorAll('.alarm_item'); // get items again
 
-            alarm.onpointerup = () => {
+    alarmItems.forEach((item, index) => 
+        item.onpointerdown = () => {
+            item.classList.add('holded');
+            let timer = setTimeout(() => removeAlarmItem(item, index), 800);
+
+            item.onpointerup = () => {
+                item.classList.remove('holded');
                 if (timer) {
                     clearTimeout(timer);
                     editAlarmItem(index);
@@ -191,7 +197,7 @@ const editAlarmItem = index => {
 
 const removeAlarmItem = (item, index) => {
     if (!confirm('삭제하시겠습니까?')) return;
-    
+
     item.remove();
     alarms.splice(index, 1);
     updateAlarmItems();

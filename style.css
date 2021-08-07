@@ -283,12 +283,48 @@ body {
     background-color: transparent;
 }
 
+.alarm_list .alarm_item {
+    position: relative;
+}
+
+.alarm_list .alarm_item.repeat {
+    border: 1px solid white;
+}
+
 .alarm_list .alarm_item.disabled {
-    color: #aaaaaa;
+    opacity: 0.5;
 }
 
 .alarm_list .alarm_item.holded {
     background-color: #999999;
+}
+
+.alarm_list .alarm_item .days {
+    font-size: 14px;
+}
+
+.alarm_list .alarm_item .days span {
+    padding: 2px;
+    opacity: 0.5;
+}
+
+.alarm_list .alarm_item .days span.selected {
+    font-weight: bold;
+    opacity: 1;
+}
+
+.alarm_list .alarm_item .fa-sync-alt {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+}
+
+.days *:first-child {
+    color: rgb(255, 64, 64);
+}
+
+.days *:last-child {
+    color: rgb(64, 192, 255);
 }
 
 .alarm_modal {
@@ -298,16 +334,20 @@ body {
     align-items: center;
     position: fixed;
     top: 100%;
-    width: 100%;
+    z-index: 10;
+    width: 95%;
+    max-width: 480px;
     height: 100%;
     padding: 16px;
+    border: 1px solid white;
+    border-radius: 8px 8px 0 0;
     background-color: #111111;
     opacity: 0;
     transition: top 0.4s, opacity 0.4s;
 }
 
 .alarm_modal.opened {
-    top: 0;
+    top: 8px;
     opacity: 1;
 }
 
@@ -374,14 +414,6 @@ body {
     opacity: 0.5;
     cursor: pointer;
     transition: border 0.2s, opacity 0.2s;
-}
-
-.alarm_modal .days li:first-child {
-    color: rgb(255, 64, 64);
-}
-
-.alarm_modal .days li:last-child {
-    color: rgb(64, 192, 255);
 }
 
 .alarm_modal .days li.selected {

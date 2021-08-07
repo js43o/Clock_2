@@ -151,14 +151,21 @@ const addAlarmItem = alarm => {
     alarmItem.className = 'alarm_item';
 
     if (!alarm.enable) alarmItem.classList.add('disabled');
+    if (alarm.repeat) alarmItem.classList.add('repeat');
 
     let alarmHTML = `
     <div>${alarm.name}</div>
     <div style="font-size: 32px; font-family: 'Inconsolata', monospace">${
         alarm.hour < 10 ? '0' + alarm.hour : alarm.hour}:${
         alarm.minute < 10 ? '0' + alarm.minute : alarm.minute}</div>
-    <div style="font-size: 14px">${alarm.days.sort(compareDays)} - ${alarm.repeat ? '반복' : '한 번'}</div>
-    `;
+        <div class="days">`;
+
+    DAYS_NAME.forEach(day => {
+        if (alarm.days.includes(day)) alarmHTML += `<span class="selected">${day}</span>`;
+        else alarmHTML += `<span class="no-selected">${day}</span>`;
+    })
+
+    alarmHTML += `</div>${alarm.repeat ? '<i class="fas fa-sync-alt"></i>' : ''}`;
 
     alarmItem.insertAdjacentHTML('beforeend', alarmHTML);
 
@@ -178,12 +185,13 @@ const updateAlarmItems = () => {
             item.classList.add('holded');
             let timer = setTimeout(() => removeAlarmItem(item, index), 800);
 
-            item.onpointerup = () => {
-                item.classList.remove('holded');
+            document.onpointerup = () => {
                 if (timer) {
                     clearTimeout(timer);
                     editAlarmItem(index);
                 }
+                item.classList.remove('holded');
+                document.onpointerup = null;
             };
         }
     );
@@ -196,10 +204,10 @@ const editAlarmItem = index => {
 };
 
 const removeAlarmItem = (item, index) => {
-    if (!confirm('삭제하시겠습니까?')) return;
-
-    item.remove();
-    alarms.splice(index, 1);
+    if (confirm('삭제하시겠습니까?')) {
+        item.remove();
+        alarms.splice(index, 1);
+    }
     updateAlarmItems();
 };
 
@@ -254,7 +262,7 @@ dials.forEach(dial => {
             moveValue = upEvent.clientY - downEvent.clientY;
 
             let moveSpeed = Math.abs((downEvent.clientY - upEvent.clientY) / (Date.now() - t));
-            if (moveSpeed > 1) moveValue = moveValue * moveSpeed;
+            if (moveSpeed > 1) moveValue = moveValue * moveSpeed * 1.2;
 
             dialValues[dialName] = boundDialValue(dialValues[dialName] + Math.round(moveValue / DIAL_HEIGHT) * DIAL_HEIGHT, dialName);
             dial.style.top = dialValues[dialName] + 'px';

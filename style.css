@@ -1,6 +1,7 @@
 * {
     padding: 0;
     margin: 0;
+    list-style: none;
     box-sizing: border-box;
     touch-action: none;
     -webkit-tap-highlight-color: rgba(0,0,0,0);
@@ -232,7 +233,7 @@ body {
     transform: rotate(-330deg);
 }
 
-.text {
+.indicator {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -240,11 +241,11 @@ body {
     font-family: 'Inconsolata', monospace;
 }
 
-.text .date {
+.indicator .indicator_date {
     font-size: 24px;
 }
 
-.text .time {
+.indicator .indicator_time {
     font-size: 48px;
 }
 
@@ -342,6 +343,10 @@ body {
     transition: top 0.2s;
 }
 
+.alarm_modal .time .time_selector div {
+    height: 77px;
+}
+
 .alarm_modal .time .time_selector.no-transition {
     transition: none;
 }
@@ -352,7 +357,6 @@ body {
     justify-content: space-evenly;
     align-items: center;
     width: 100%;
-    list-style: none;
 }
 
 .alarm_modal .days li {

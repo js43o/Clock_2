@@ -28,8 +28,8 @@ menu.querySelectorAll("div").forEach((item, index) => {
 /* Clock */
 
 let hands = document.querySelector('.hand').children;
-let date = document.querySelector('.date');
-let time = document.querySelector('.time');
+let date = document.querySelector('.indicator_date');
+let time = document.querySelector('.indicator_time');
 
 const rotateElem = (elem, deg) => {
     elem.style.transform = `rotate(${deg}deg)`;
@@ -63,20 +63,6 @@ const updateClock = () => {
 const startClock = () => {
     setInterval(updateClock, 1000);
 };
-
-async function testSharp() {
-    async function* genArr() {
-        for (let i of [350, 355, 360, 5, 10]) {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            yield i;
-        }
-    }
-
-    let arr = genArr();
-    for await (let i of arr) {
-        rotateElem(hands[2], i);
-    }
-}
 
 
 /* Alarm */
@@ -250,16 +236,21 @@ dials.forEach(dial => {
     dial.onpointerdown = downEvent => {
         dial.classList.add('no-transition');
         let shiftY = downEvent.clientY - dialValues[dialName];
+        let moveValue = 0;
+        let t = Date.now();
 
         document.onpointermove = moveEvent => {
-            dialValues[dialName] = Math.max(Math.min(moveEvent.clientY - shiftY, 0), -DIAL_LIMITS[dialName] * DIAL_HEIGHT);
             dial.style.top = moveEvent.clientY - shiftY + 'px';
         }
 
-        document.onpointerup = () => {
+        document.onpointerup = upEvent => {
             dial.classList.remove('no-transition');
+            moveValue = upEvent.clientY - downEvent.clientY;
 
-            dialValues[dialName] = Math.round(dialValues[dialName] / DIAL_HEIGHT) * DIAL_HEIGHT;
+            let moveSpeed = Math.abs((downEvent.clientY - upEvent.clientY) / (Date.now() - t));
+            if (moveSpeed > 1) moveValue = moveValue * moveSpeed;
+
+            dialValues[dialName] = boundDialValue(dialValues[dialName] + Math.round(moveValue / DIAL_HEIGHT) * DIAL_HEIGHT, dialName);
             dial.style.top = dialValues[dialName] + 'px';
 
             document.onpointermove = null;
@@ -267,6 +258,8 @@ dials.forEach(dial => {
         }
     }
 });
+
+const boundDialValue = (movement, dialName) => Math.max(Math.min(movement, 0), -DIAL_LIMITS[dialName] * DIAL_HEIGHT);
 
 dayItems.forEach(item => item.onclick = () => {
     item.classList.toggle('selected');

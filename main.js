@@ -1,8 +1,8 @@
 /* Page */
 
 const deviceWidth = document.documentElement.clientWidth;
-let main = document.querySelector('.main');
-let pages = document.querySelectorAll('.page');
+let pageWrapper = document.querySelector('.page-wrapper');
+let pages = document.querySelectorAll('.page section');
 let menu = document.querySelector('.menu');
 let currentMenu = menu.children[0];
 
@@ -16,9 +16,7 @@ const clickMenu = (menu, index) => {
     movePageWidthIndex(index);
 };
 
-const movePageWidthIndex = index => {
-    main.style.left = `${-deviceWidth * index}px`;
-};
+const movePageWidthIndex = index => pageWrapper.style.left = `${-deviceWidth * index}px`;
 
 menu.querySelectorAll("div").forEach((item, index) => {
     item.onclick = () => clickMenu(item, index);
@@ -27,13 +25,11 @@ menu.querySelectorAll("div").forEach((item, index) => {
 
 /* Clock */
 
-let hands = document.querySelector('.hand').children;
-let date = document.querySelector('.indicator_date');
-let time = document.querySelector('.indicator_time');
+let hands = document.querySelector('.clock__hands').children;
+let date = document.querySelector('.clock__indicator__date');
+let time = document.querySelector('.clock__indicator__time');
 
-const rotateElem = (elem, deg) => {
-    elem.style.transform = `rotate(${deg}deg)`;
-};
+const rotateElem = (elem, deg) => elem.style.transform = `rotate(${deg}deg)`;
 
 const updateHands = now => {
     rotateElem(hands[0], now.getHours() % 12 * 30 + now.getMinutes() * 0.5);
@@ -49,10 +45,7 @@ const updateTime = now => {
     time.textContent = times.map(fillDigit).join(':');
 };
 
-const fillDigit = str => {
-    if (str < 10) return '0' + str;
-    else return str;
-};
+const fillDigit = str => str < 10 ? `0${str}` : str;
 
 const updateClock = () => {
     let now = new Date();
@@ -60,9 +53,7 @@ const updateClock = () => {
     updateTime(now);
 };
 
-const startClock = () => {
-    setInterval(updateClock, 1000);
-};
+const startClock = () => setInterval(updateClock, 1000);
 
 
 /* Alarm */
@@ -76,14 +67,14 @@ let dialValues = { meridiem: 0, hour: 0, minute: 0 };
 let selectedDays = new Set();
 let currentAlarm;
 
-let alarmList = document.querySelector('.alarm_list');
-let alarmAddButton = document.querySelector('.alarm_add');
-let alarmModal = document.querySelector('.alarm_modal');
-let dials = document.querySelectorAll('.time .time_selector');
-let dayItems = document.querySelectorAll('.days li');
-let alarmName = document.querySelector('input[name="alarm_name"]');
-let isRepeated = document.querySelector('input[name="alarm_repeated"]');
-let isEnabled = document.querySelector('input[name="alarm_enabled"]');
+let alarmList = document.querySelector('.alarm-list');
+let alarmAddButton = document.querySelector('.alarm-adder');
+let alarmModal = document.querySelector('.alarm-modal');
+let dials = document.querySelectorAll('.time-selector');
+let dayItems = document.querySelectorAll('.day-selector li');
+let alarmName = document.querySelector('input#alarm-name');
+let isRepeated = document.querySelector('input#alarm-repeated');
+let isEnabled = document.querySelector('input#alarm-enabled');
 
 const openAlarmModal = () => {
     if (alarmModal.classList.contains('opened')) return;
@@ -93,7 +84,6 @@ const openAlarmModal = () => {
 const closeAlarmModal = () => {
     if (!alarmModal.classList.contains('opened')) return;
     alarmModal.classList.remove('opened');
-    setTimeout(resetAlarmModal, 400);
 };
 
 const resetAlarmModal = () => {
@@ -148,24 +138,26 @@ const setAlarm = alarm => {
 
 const addAlarmItem = alarm => {
     let alarmItem = document.createElement('li');
-    alarmItem.className = 'alarm_item';
+    alarmItem.className = 'alarm-item';
 
     if (!alarm.enable) alarmItem.classList.add('disabled');
     if (alarm.repeat) alarmItem.classList.add('repeat');
+
 
     let alarmHTML = `
     <div>${alarm.name}</div>
     <div style="font-size: 32px; font-family: 'Inconsolata', monospace">${
         alarm.hour < 10 ? '0' + alarm.hour : alarm.hour}:${
         alarm.minute < 10 ? '0' + alarm.minute : alarm.minute}</div>
-        <div class="days">`;
+        <ul class="week-list">`;
 
     DAYS_NAME.forEach(day => {
-        if (alarm.days.includes(day)) alarmHTML += `<span class="selected">${day}</span>`;
-        else alarmHTML += `<span class="no-selected">${day}</span>`;
+        if (alarm.days.includes(day)) alarmHTML += `<li class="selected">${day}</li>`;
+        else alarmHTML += `<li class="no-selected">${day}</li>`;
     })
 
-    alarmHTML += `</div>${alarm.repeat ? '<i class="fas fa-sync-alt"></i>' : ''}`;
+    alarmHTML += `</ul>${alarm.repeat ? '<i class="fas fa-sync-alt"></i>' : ''}`;
+
 
     alarmItem.insertAdjacentHTML('beforeend', alarmHTML);
 
@@ -173,12 +165,12 @@ const addAlarmItem = alarm => {
 };
 
 const updateAlarmItems = () => {
-    let alarmItems = alarmList.querySelectorAll('.alarm_item');
+    let alarmItems = alarmList.querySelectorAll('.alarm-item');
 
     alarmItems.forEach(item => item.remove());
     alarms.forEach(alarm => addAlarmItem(alarm));
 
-    alarmItems = alarmList.querySelectorAll('.alarm_item'); // get items again
+    alarmItems = alarmList.querySelectorAll('.alarm-item'); // get items again
 
     alarmItems.forEach((item, index) => 
         item.onpointerdown = () => {
@@ -284,6 +276,7 @@ dayItems.forEach(item => item.onclick = () => {
 
 alarmAddButton.onclick = () => {
     currentAlarm = null;
+    resetAlarmModal();
     openAlarmModal();
 };
 alarmModal.querySelector('.cancel').onclick = closeAlarmModal;

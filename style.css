@@ -73,10 +73,10 @@ header {
 .page-wrapper section {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     width: 100%;
     height: 100%;
+    padding: 8px;
     flex-shrink: 0;
     overflow-y: auto;
 }
@@ -110,6 +110,10 @@ ul.week-list li {
 
 /* Clock */
 
+.page__clock {
+    justify-content: center;
+}
+
 .clock {
     position: relative;
     width: 250px;
@@ -128,7 +132,7 @@ ul.week-list li {
     height: 12px;
     border-radius: 50%;
     background-color: white;
-    box-shadow: 0 0 8px black;
+    box-shadow: 0 0 8px #111111;
 }
 
 .clock__hands {
@@ -140,7 +144,7 @@ ul.week-list li {
     position: absolute;
     bottom: 0;
     transform-origin: bottom center;
-    box-shadow: 0 0 8px black;
+    box-shadow: 0 0 8px #111111;
 }
 
 .clock__hands__hour {
@@ -500,7 +504,7 @@ input[type="checkbox"]:checked + label::before {
     width: 100%;
 }
 
-.alarm-modal .buttons * {
+.alarm-modal .buttons button {
     width: 48%;
     height: 60px;
     border: 1px solid white;
@@ -514,6 +518,51 @@ input[type="checkbox"]:checked + label::before {
 }
 
 .alarm-modal .buttons .ok {
-    color: black;
+    color: #111111;
     background-color: white;
+}
+
+/* Stopwatch */
+
+.page__stopwatch {
+    justify-content: space-evenly;
+}
+
+.stopwatch-time {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inconsolata', monospace;
+    font-size: 64px;
+}
+
+.stopwatch-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    max-width: 480px;
+    height: 60px;
+    border: 1px solid white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.stopwatch-buttons button {
+    flex-grow: 1;
+    border: none;
+    color: white;
+    background-color: #111111;
+    font-size: 18px;
+}
+
+.stopwatch-buttons .start {
+    display: block;
+}
+
+.stopwatch-buttons .stop {
+    color: #111111;
+    background-color: white;
+    display: none;
 }

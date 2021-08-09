@@ -172,8 +172,8 @@
                     <label for="alarm-repeated">반복하기</label>
                 </div>
                 <div class="buttons">
-                    <input type="button" class="cancel clickable" value="취소">
-                    <input type="submit" class="ok clickable" value="확인">
+                    <button class="cancel clickable" type="button">취소</button>
+                    <button class="ok clickable" type="button">확인</button>
                 </div>
             </div>
             <ul class="alarm-list">
@@ -184,7 +184,18 @@
             </ul>
         </section>
         <section class="page__stopwatch">
-            스톱워치
+                <div class="stopwatch-time">
+                    00:00.00
+                </div>
+                <ul class="stopwatch-record">
+
+                </ul>
+                <div class="stopwatch-buttons">
+                    <button class="start clickable" type="button">시작</button>
+                    <button class="stop clickable" type="button">중지</button>
+                    <button class="record clickable" type="button">기록</button>
+                    <button class="reset clickable" type="button">리셋</button>
+                </div>
         </section>
         <section class="page__timer">
             타이머

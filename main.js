@@ -295,4 +295,62 @@ document.oncontextmenu = () => false;
 
 updateClock();
 startClock();
-let alarm_schedule = setInterval(checkAlarm, 5000);
+let alarmSchedule = setInterval(checkAlarm, 5000);
+
+
+/* Stopwatch */
+
+let stopwatchSchedule;
+let stopwatchMS = 0;
+let stopwatchDisplay = document.querySelector('.stopwatch-time');
+let buttons = document.querySelector('.stopwatch-buttons');
+let buttonStart = buttons.querySelector('.start');
+let buttonStop = buttons.querySelector('.stop');
+let buttonReset = buttons.querySelector('.reset');
+
+const buttonModeStart = () => {
+    buttonStop.style.display = 'none';
+    buttonStart.style.display = 'block';
+};
+
+const showButtonStop = () => {
+    buttonStart.style.display = 'none';
+    buttonStop.style.display = 'block';
+};
+
+const updateStopwatch = () => {
+    stopwatchMS += 10;
+    stopwatchDisplay.textContent = millisecondToStr(stopwatchMS);
+};
+
+const clearTime = () => {
+    stopwatchMS = 0;
+    stopwatchDisplay.textContent = '00:00.00';
+};
+
+const millisecondToStr = ms => {
+    let minute = fillDigit(Math.floor(ms / 60000));
+    let second = fillDigit(Math.floor((ms / 1000) % 60));
+    let miniSecond = fillDigit(Math.floor((ms / 10) % 100));
+    return `${minute}:${second}.${miniSecond}`;
+};
+
+const startStopwatch = () => {
+    showButtonStop();
+    stopwatchSchedule = setInterval(updateStopwatch, 10);
+};
+
+const stopStopwatch = () => {
+    buttonModeStart();
+    clearInterval(stopwatchSchedule);
+};
+
+const resetStopwatch = () => {
+    buttonModeStart();
+    clearInterval(stopwatchSchedule);
+    clearTime();
+};
+
+buttonStart.onclick = startStopwatch;
+buttonStop.onclick = stopStopwatch;
+buttonReset.onclick = resetStopwatch;

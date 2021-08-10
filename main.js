@@ -301,11 +301,13 @@ let alarmSchedule = setInterval(checkAlarm, 5000);
 /* Stopwatch */
 
 let stopwatchSchedule;
-let stopwatchMS = 0;
+let stopwatchStartTime;
 let stopwatchDisplay = document.querySelector('.stopwatch-time');
+let stopwatchRecord = document.querySelector('.stopwatch-record ul');
 let buttons = document.querySelector('.stopwatch-buttons');
 let buttonStart = buttons.querySelector('.start');
 let buttonStop = buttons.querySelector('.stop');
+let buttonRecord = buttons.querySelector('.record');
 let buttonReset = buttons.querySelector('.reset');
 
 const buttonModeStart = () => {
@@ -319,13 +321,8 @@ const showButtonStop = () => {
 };
 
 const updateStopwatch = () => {
-    stopwatchMS += 10;
-    stopwatchDisplay.textContent = millisecondToStr(stopwatchMS);
-};
-
-const clearTime = () => {
-    stopwatchMS = 0;
-    stopwatchDisplay.textContent = '00:00.00';
+    let t = Date.now() - stopwatchStartTime;
+    stopwatchDisplay.textContent = millisecondToStr(t);
 };
 
 const millisecondToStr = ms => {
@@ -337,7 +334,8 @@ const millisecondToStr = ms => {
 
 const startStopwatch = () => {
     showButtonStop();
-    stopwatchSchedule = setInterval(updateStopwatch, 10);
+    stopwatchStartTime = Date.now();
+    stopwatchSchedule = setInterval(updateStopwatch, 20);
 };
 
 const stopStopwatch = () => {
@@ -346,11 +344,21 @@ const stopStopwatch = () => {
 };
 
 const resetStopwatch = () => {
-    buttonModeStart();
-    clearInterval(stopwatchSchedule);
-    clearTime();
+    stopStopwatch();
+    
+    stopwatchMS = 0;
+    stopwatchDisplay.textContent = '00:00.00';
+    stopwatchRecord.textContent = '';
 };
+
+const addRecord = () => {
+    let li = document.createElement('li');
+    li.insertAdjacentHTML('beforeend', `<b>${fillDigit(1 + stopwatchRecord.children.length)} - </b> ${stopwatchDisplay.textContent}`);
+    stopwatchRecord.append(li);
+    stopwatchRecord.parentElement.scrollTop = 1e9;
+}
 
 buttonStart.onclick = startStopwatch;
 buttonStop.onclick = stopStopwatch;
+buttonRecord.onclick = addRecord;
 buttonReset.onclick = resetStopwatch;

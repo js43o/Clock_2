@@ -288,16 +288,6 @@ alarmModal.querySelector('.ok').onclick = () => {
 };
 
 
-// prevent default events
-document.ondragstart = () => false;
-document.onselectstart = () => false;
-document.oncontextmenu = () => false;
-
-updateClock();
-startClock();
-let alarmSchedule = setInterval(checkAlarm, 5000);
-
-
 /* Stopwatch */
 
 let stopwatchSchedule;
@@ -349,16 +339,59 @@ const resetStopwatch = () => {
     stopwatchMS = 0;
     stopwatchDisplay.textContent = '00:00.00';
     stopwatchRecord.textContent = '';
+    moveRecordToBottom();
 };
 
 const addRecord = () => {
     let li = document.createElement('li');
     li.insertAdjacentHTML('beforeend', `<b>${fillDigit(1 + stopwatchRecord.children.length)} - </b> ${stopwatchDisplay.textContent}`);
     stopwatchRecord.append(li);
-    stopwatchRecord.parentElement.scrollTop = 1e9;
+    moveRecordToBottom();
 }
 
 buttonStart.onclick = startStopwatch;
 buttonStop.onclick = stopStopwatch;
 buttonRecord.onclick = addRecord;
 buttonReset.onclick = resetStopwatch;
+
+const CONTAINER_HEIGHT = stopwatchRecord.parentElement.clientHeight;
+let recordPos = 0;
+
+const moveRecord = (pos = recordPos) => stopwatchRecord.style.top = pos + 'px';
+
+const moveRecordToBottom = () => {
+    recordPos = CONTAINER_HEIGHT - stopwatchRecord.clientHeight;
+    moveRecord();
+};
+
+stopwatchRecord.onpointerdown = downEvent => {
+    stopwatchRecord.classList.add('no-transition');
+    let originY = downEvent.clientY;
+    let moveValue = originY;
+    let resultY;
+    
+    document.onpointermove = moveEvent => {
+        moveValue = originY - moveEvent.clientY;
+        resultY = Math.max(Math.min(recordPos - moveValue, 0), CONTAINER_HEIGHT - stopwatchRecord.clientHeight)
+        moveRecord(resultY);
+    };
+
+    document.onpointerup = () => {
+        stopwatchRecord.classList.remove('no-transition');
+        recordPos = resultY;
+
+        document.onpointermove = null;
+        document.onpointerup = null;        
+    };
+};
+
+
+// prevent default events
+document.ondragstart = () => false;
+document.onselectstart = () => false;
+document.oncontextmenu = () => false;
+
+updateClock();
+startClock();
+let alarmSchedule = setInterval(checkAlarm, 5000);
+moveRecordToBottom();

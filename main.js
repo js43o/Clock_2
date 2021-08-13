@@ -292,6 +292,8 @@ alarmModal.querySelector('.ok').onclick = () => {
 
 let stopwatchSchedule;
 let stopwatchStartTime;
+let stopwatchMs = 0;
+let t = 0;
 let stopwatchDisplay = document.querySelector('.stopwatch-time');
 let stopwatchRecord = document.querySelector('.stopwatch-record ul');
 let buttons = document.querySelector('.stopwatch-buttons');
@@ -300,19 +302,23 @@ let buttonStop = buttons.querySelector('.stop');
 let buttonRecord = buttons.querySelector('.record');
 let buttonReset = buttons.querySelector('.reset');
 
-const buttonModeStart = () => {
+const showStartMode = () => {
     buttonStop.style.display = 'none';
     buttonStart.style.display = 'block';
+    buttonRecord.classList.add('disabled');
+    buttonReset.classList.add('disabled');
 };
 
-const showButtonStop = () => {
+const showStopMode = () => {
     buttonStart.style.display = 'none';
     buttonStop.style.display = 'block';
+    buttonRecord.classList.remove('disabled');
+    buttonReset.classList.remove('disabled');
 };
 
 const updateStopwatch = () => {
-    let t = Date.now() - stopwatchStartTime;
-    stopwatchDisplay.textContent = millisecondToStr(t);
+    t = Date.now() - stopwatchStartTime;
+    stopwatchDisplay.textContent = millisecondToStr(stopwatchMs + t);
 };
 
 const millisecondToStr = ms => {
@@ -323,21 +329,25 @@ const millisecondToStr = ms => {
 };
 
 const startStopwatch = () => {
-    showButtonStop();
+    showStopMode();
     stopwatchStartTime = Date.now();
     stopwatchSchedule = setInterval(updateStopwatch, 20);
+    stopwatchDisplay.classList.add('activated');
 };
 
 const stopStopwatch = () => {
-    buttonModeStart();
+    showStartMode();
     clearInterval(stopwatchSchedule);
+    stopwatchMs += t;
 };
 
 const resetStopwatch = () => {
     stopStopwatch();
-    
-    stopwatchMS = 0;
+    stopwatchMs = 0;
+    t = 0;
+
     stopwatchDisplay.textContent = '00:00.00';
+    stopwatchDisplay.classList.remove('activated');
     stopwatchRecord.textContent = '';
     moveRecordToBottom();
 };
@@ -372,7 +382,7 @@ stopwatchRecord.onpointerdown = downEvent => {
     
     document.onpointermove = moveEvent => {
         moveValue = originY - moveEvent.clientY;
-        resultY = Math.max(Math.min(recordPos - moveValue, 0), CONTAINER_HEIGHT - stopwatchRecord.clientHeight)
+        resultY = Math.max(Math.min(recordPos - moveValue, 100), CONTAINER_HEIGHT - stopwatchRecord.clientHeight)
         moveRecord(resultY);
     };
 

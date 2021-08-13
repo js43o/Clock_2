@@ -535,8 +535,16 @@ input[type="checkbox"]:checked + label::before {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    position: relative;
+    top: 25%;
+    z-index: 50;
     font-family: 'Inconsolata', monospace;
     font-size: 72px;
+    transition: top 0.4s;
+}
+
+.stopwatch-time.activated {
+    top: 0;
 }
 
 .stopwatch-buttons {
@@ -557,6 +565,11 @@ input[type="checkbox"]:checked + label::before {
     color: white;
     background-color: #111111;
     font-size: 18px;
+}
+
+.stopwatch-buttons button.disabled {
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 .stopwatch-buttons .start {
@@ -605,4 +618,8 @@ input[type="checkbox"]:checked + label::before {
 
 .stopwatch-record ul li:last-child {
     text-shadow: 0 0 2px white;
+}
+
+.stopwatch-record li {
+    margin-top: 8px;
 }

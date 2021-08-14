@@ -36,6 +36,7 @@ header {
     width: 100%;
     padding: 8px;
     text-align: center;
+    font-family: 'Comfortaa', cursive;
 }
 
 .menu {
@@ -110,6 +111,7 @@ ul.week-list li {
 .week-list *:last-child {
     color: rgb(64, 192, 255);
 }
+
 
 /* Clock */
 
@@ -282,6 +284,7 @@ ul.week-list li {
     font-size: 48px;
 }
 
+
 /* Alarm */
 
 .alarm-adder {
@@ -380,19 +383,21 @@ ul.week-list li {
     opacity: 1;
 }
 
-.alarm-modal .time-selector-wrapper {
+.time-selector-wrapper {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     position: relative;
     width: 100%;
+    max-width: 420px;
     font-size: 52px;
+    font-family: 'Inconsolata', monospace;
     overflow: hidden;
     touch-action: none;
 }
 
-.alarm-modal .time-selector-cover {
+.time-selector-cover {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -401,7 +406,7 @@ ul.week-list li {
     pointer-events: none;
 }
 
-.alarm-modal .time-selector {
+.time-selector {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -413,7 +418,7 @@ ul.week-list li {
     transition: top 0.2s;
 }
 
-.alarm-modal .time-selector > div {
+.time-selector > div {
     display: flex;
     flex-shrink: 0;
     justify-content: center;
@@ -421,7 +426,7 @@ ul.week-list li {
     height: 77px;
 }
 
-.alarm-modal .time-selector.no-transition {
+.time-selector.no-transition {
     transition: none;
 }
 
@@ -524,6 +529,7 @@ input[type="checkbox"]:checked + label::before {
     background-color: white;
 }
 
+
 /* Stopwatch */
 
 .page__stopwatch {
@@ -622,4 +628,55 @@ input[type="checkbox"]:checked + label::before {
 
 .stopwatch-record li {
     margin-top: 8px;
+}
+
+
+/* Timer */
+
+.page__timer {
+    justify-content: space-evenly;
+}
+
+.page__timer .time-selector-wrapper {
+    font-size: 64px;
+}
+
+.page__timer .buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    z-index: 50px;
+    width: 50%;
+    max-width: 320px;
+    height: 48px;
+    border: 1px solid white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.page__timer .buttons button {
+    flex-grow: 1;
+    border: none;
+    color: white;
+    background-color: #111111;
+    font-size: 18px;
+}
+
+.page__timer .buttons button.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.page__timer .buttons .start {
+    display: block;
+}
+
+.page__timer .buttons .stop {
+    color: #111111;
+    background-color: white;
+    display: none;
+}
+
+.page__timer .buttons .reset {
+    display: none;
 }

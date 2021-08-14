@@ -63,14 +63,14 @@ const DIAL_HEIGHT = 77;
 const DAYS_NAME = ['일', '월', '화', '수', '목', '금', '토'];
 
 let alarms = [];
-let dialValues = { meridiem: 0, hour: 0, minute: 0 };
+let alarmDialValues = { meridiem: 0, hour: 0, minute: 0 };
 let selectedDays = new Set();
 let currentAlarm;
 
 let alarmList = document.querySelector('.alarm-list');
 let alarmAddButton = document.querySelector('.alarm-adder');
 let alarmModal = document.querySelector('.alarm-modal');
-let dials = document.querySelectorAll('.time-selector');
+let alarmDials = document.querySelectorAll('.alarm-modal .time-selector');
 let dayItems = document.querySelectorAll('.day-selector li');
 let alarmName = document.querySelector('input#alarm-name');
 let isRepeated = document.querySelector('input#alarm-repeated');
@@ -101,20 +101,20 @@ const resetAlarmModal = () => {
 };
 
 const setAlarmModal = alarm => {
-    setDialValues(alarm.meridiem, alarm.hour, alarm.minute);
+    setAlarmDialValues(alarm.meridiem, alarm.hour, alarm.minute);
     alarm.days.forEach(day => selectedDays.add(day));
 
-    dials.forEach(dial => dial.style.top = dialValues[dial.className.split(' ')[1]] + 'px');
+    alarmDials.forEach(dial => dial.style.top = alarmDialValues[dial.className.split(' ')[1]] + 'px');
     dayItems.forEach(item => alarm.days.includes(item.textContent) ? item.classList.add('selected') : '');
     alarmName.value = alarm.name;
     isEnabled.checked = alarm.enable;
     isRepeated.checked = alarm.repeat;
 }
 
-const setDialValues = (mer, h, m) => {
-    dialValues.meridiem = -mer * DIAL_HEIGHT;
-    dialValues.hour = -(h % 12) * DIAL_HEIGHT;
-    dialValues.minute = -m * DIAL_HEIGHT;
+const setAlarmDialValues = (mer, h, m) => {
+    alarmDialValues.meridiem = -mer * DIAL_HEIGHT;
+    alarmDialValues.hour = -(h % 12) * DIAL_HEIGHT;
+    alarmDialValues.minute = -m * DIAL_HEIGHT;
 };
 
 const addAlarm = () => {
@@ -126,9 +126,9 @@ const addAlarm = () => {
 
 const setAlarm = alarm => {
     alarm.checkable = true;    // is detected by alarm checker
-    alarm.meridiem = -dialValues.meridiem / DIAL_HEIGHT;
-    alarm.hour = -(12 * (dialValues.meridiem / DIAL_HEIGHT) + (dialValues.hour / DIAL_HEIGHT));
-    alarm.minute = -dialValues.minute / DIAL_HEIGHT;
+    alarm.meridiem = -alarmDialValues.meridiem / DIAL_HEIGHT;
+    alarm.hour = -(12 * (alarmDialValues.meridiem / DIAL_HEIGHT) + (alarmDialValues.hour / DIAL_HEIGHT));
+    alarm.minute = -alarmDialValues.minute / DIAL_HEIGHT;
     alarm.name = alarmName.value;
     alarm.enable = isEnabled.checked;
     alarm.repeat = isRepeated.checked;
@@ -177,13 +177,12 @@ const updateAlarmItems = () => {
             item.classList.add('holded');
             let timer = setTimeout(() => removeAlarmItem(item, index), 800);
 
-            document.onpointerup = () => {
-                if (timer) {
-                    clearTimeout(timer);
-                    editAlarmItem(index);
-                }
+            item.onpointerup = () => {
+                clearTimeout(timer);
+                editAlarmItem(index);
                 item.classList.remove('holded');
-                document.onpointerup = null;
+
+                item.onpointerup = null;
             };
         }
     );
@@ -235,37 +234,42 @@ const playAlarm = alarm => {
     }
 }
 
-// dial dragging event
-dials.forEach(dial => {
-    let dialName = dial.className.split(' ')[1];
+const getDialName = dial => dial.className.split(' ')[1];
 
-    dial.onpointerdown = downEvent => {
-        dial.classList.add('no-transition');
-        let shiftY = downEvent.clientY - dialValues[dialName];
-        let moveValue = 0;
-        let t = Date.now();
+const addDraggingEventToDials = (dialElems, dialValues) => {
+    dialElems.forEach(dialElem => {
+        let dial = getDialName(dialElem);
 
-        document.onpointermove = moveEvent => {
-            dial.style.top = moveEvent.clientY - shiftY + 'px';
+        dialElem.onpointerdown = downEvent => {
+            dialElem.classList.add('no-transition');
+            let shiftY = downEvent.clientY - dialValues[dial];
+            let moveValue = 0;
+            let t = Date.now();
+    
+            document.onpointermove = moveEvent => dialElem.style.top = `${moveEvent.clientY - shiftY}px`;
+    
+            document.onpointerup = upEvent => {
+                dialElem.classList.remove('no-transition');
+                moveValue = upEvent.clientY - downEvent.clientY;
+    
+                let moveSpeed = Math.abs((downEvent.clientY - upEvent.clientY) / (Date.now() - t));
+                moveValue = moveSpeed > 1 ? moveValue * moveSpeed * 1.2 : moveValue;
+    
+                dialValues[dial] = boundDialValue(dialValues[dial] +
+                    Math.round(moveValue / DIAL_HEIGHT) * DIAL_HEIGHT, dial);
+                dialElem.style.top = `${dialValues[dial]}px`;
+    
+                document.onpointermove = null;
+                document.onpointerup = null;
+            }
         }
+    });
+};
 
-        document.onpointerup = upEvent => {
-            dial.classList.remove('no-transition');
-            moveValue = upEvent.clientY - downEvent.clientY;
+const boundDialValue = (movement, dialName) =>
+    Math.max(Math.min(movement, 0), -DIAL_LIMITS[dialName] * DIAL_HEIGHT);
 
-            let moveSpeed = Math.abs((downEvent.clientY - upEvent.clientY) / (Date.now() - t));
-            if (moveSpeed > 1) moveValue = moveValue * moveSpeed * 1.2;
-
-            dialValues[dialName] = boundDialValue(dialValues[dialName] + Math.round(moveValue / DIAL_HEIGHT) * DIAL_HEIGHT, dialName);
-            dial.style.top = dialValues[dialName] + 'px';
-
-            document.onpointermove = null;
-            document.onpointerup = null;
-        }
-    }
-});
-
-const boundDialValue = (movement, dialName) => Math.max(Math.min(movement, 0), -DIAL_LIMITS[dialName] * DIAL_HEIGHT);
+addDraggingEventToDials(alarmDials, alarmDialValues);
 
 dayItems.forEach(item => item.onclick = () => {
     item.classList.toggle('selected');
@@ -273,19 +277,20 @@ dayItems.forEach(item => item.onclick = () => {
         ? selectedDays.delete(item.textContent) : selectedDays.add(item.textContent);
 });
 
-
 alarmAddButton.onclick = () => {
     currentAlarm = null;
     resetAlarmModal();
     openAlarmModal();
 };
-alarmModal.querySelector('.cancel').onclick = closeAlarmModal;
+
 alarmModal.querySelector('.ok').onclick = () => {
     if (!currentAlarm) currentAlarm = addAlarm();
     setAlarm(currentAlarm);
     updateAlarmItems();
     closeAlarmModal();
 };
+
+alarmModal.querySelector('.cancel').onclick = closeAlarmModal;
 
 
 /* Stopwatch */
@@ -296,24 +301,21 @@ let stopwatchMs = 0;
 let t = 0;
 let stopwatchDisplay = document.querySelector('.stopwatch-time');
 let stopwatchRecord = document.querySelector('.stopwatch-record ul');
-let buttons = document.querySelector('.stopwatch-buttons');
-let buttonStart = buttons.querySelector('.start');
-let buttonStop = buttons.querySelector('.stop');
-let buttonRecord = buttons.querySelector('.record');
-let buttonReset = buttons.querySelector('.reset');
+let buttonStart = document.querySelector('.stopwatch-buttons .start');
+let buttonStop = document.querySelector('.stopwatch-buttons .stop');
+let buttonRecord = document.querySelector('.stopwatch-buttons .record');
+let buttonReset = document.querySelector('.stopwatch-buttons .reset');
 
 const showStartMode = () => {
     buttonStop.style.display = 'none';
     buttonStart.style.display = 'block';
     buttonRecord.classList.add('disabled');
-    buttonReset.classList.add('disabled');
 };
 
 const showStopMode = () => {
     buttonStart.style.display = 'none';
     buttonStop.style.display = 'block';
     buttonRecord.classList.remove('disabled');
-    buttonReset.classList.remove('disabled');
 };
 
 const updateStopwatch = () => {
@@ -354,7 +356,8 @@ const resetStopwatch = () => {
 
 const addRecord = () => {
     let li = document.createElement('li');
-    li.insertAdjacentHTML('beforeend', `<b>${fillDigit(1 + stopwatchRecord.children.length)} - </b> ${stopwatchDisplay.textContent}`);
+    li.insertAdjacentHTML('beforeend', `<b>${fillDigit(1 + stopwatchRecord.children.length)}
+        - </b> ${stopwatchDisplay.textContent}`);
     stopwatchRecord.append(li);
     moveRecordToBottom();
 }
@@ -382,7 +385,8 @@ stopwatchRecord.onpointerdown = downEvent => {
     
     document.onpointermove = moveEvent => {
         moveValue = originY - moveEvent.clientY;
-        resultY = Math.max(Math.min(recordPos - moveValue, 100), CONTAINER_HEIGHT - stopwatchRecord.clientHeight)
+        resultY = Math.max(Math.min(recordPos - moveValue, 100),
+            CONTAINER_HEIGHT - stopwatchRecord.clientHeight)
         moveRecord(resultY);
     };
 
@@ -394,6 +398,11 @@ stopwatchRecord.onpointerdown = downEvent => {
         document.onpointerup = null;        
     };
 };
+
+
+/* Timer */
+
+
 
 
 // prevent default events

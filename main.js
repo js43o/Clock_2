@@ -58,7 +58,7 @@ const startClock = () => setInterval(updateClock, 1000);
 
 /* Alarm */
 
-const DIAL_LIMITS = { meridiem: 1, hour: 11, minute: 59 };
+const ALARM_DIAL_LIMITS = { meridiem: 1, hour: 11, minute: 59 };
 const DIAL_HEIGHT = 77;
 const DAYS_NAME = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -236,7 +236,7 @@ const playAlarm = alarm => {
 
 const getDialName = dial => dial.className.split(' ')[1];
 
-const addDraggingEventToDials = (dialElems, dialValues) => {
+const addDraggingEventToDials = (dialElems, dialValues, dialLimiter) => {
     dialElems.forEach(dialElem => {
         let dial = getDialName(dialElem);
 
@@ -255,8 +255,8 @@ const addDraggingEventToDials = (dialElems, dialValues) => {
                 let moveSpeed = Math.abs((downEvent.clientY - upEvent.clientY) / (Date.now() - t));
                 moveValue = moveSpeed > 1 ? moveValue * moveSpeed * 1.2 : moveValue;
     
-                dialValues[dial] = boundDialValue(dialValues[dial] +
-                    Math.round(moveValue / DIAL_HEIGHT) * DIAL_HEIGHT, dial);
+                dialValues[dial] = boundDialValue(dial, dialLimiter,
+                    dialValues[dial] + Math.round(moveValue / DIAL_HEIGHT) * DIAL_HEIGHT);
                 dialElem.style.top = `${dialValues[dial]}px`;
     
                 document.onpointermove = null;
@@ -266,10 +266,10 @@ const addDraggingEventToDials = (dialElems, dialValues) => {
     });
 };
 
-const boundDialValue = (movement, dialName) =>
-    Math.max(Math.min(movement, 0), -DIAL_LIMITS[dialName] * DIAL_HEIGHT);
+const boundDialValue = (dialName, dialLimiter, movement) =>
+    Math.max(Math.min(movement, 0), -dialLimiter[dialName] * DIAL_HEIGHT);
 
-addDraggingEventToDials(alarmDials, alarmDialValues);
+addDraggingEventToDials(alarmDials, alarmDialValues, ALARM_DIAL_LIMITS);
 
 dayItems.forEach(item => item.onclick = () => {
     item.classList.toggle('selected');
@@ -301,44 +301,49 @@ let stopwatchMs = 0;
 let t = 0;
 let stopwatchDisplay = document.querySelector('.stopwatch-time');
 let stopwatchRecord = document.querySelector('.stopwatch-record ul');
-let buttonStart = document.querySelector('.stopwatch-buttons .start');
-let buttonStop = document.querySelector('.stopwatch-buttons .stop');
-let buttonRecord = document.querySelector('.stopwatch-buttons .record');
-let buttonReset = document.querySelector('.stopwatch-buttons .reset');
+let stopwatchStartButton = document.querySelector('.stopwatch-buttons .start');
+let stopwatchStopButton = document.querySelector('.stopwatch-buttons .stop');
+let stopwatchRecordButton = document.querySelector('.stopwatch-buttons .record');
+let stopwatchResetButton = document.querySelector('.stopwatch-buttons .reset');
 
-const showStartMode = () => {
-    buttonStop.style.display = 'none';
-    buttonStart.style.display = 'block';
-    buttonRecord.classList.add('disabled');
+const stopwatchStartMode = () => {
+    stopwatchStopButton.style.display = 'none';
+    stopwatchStartButton.style.display = 'block';
+    stopwatchRecordButton.classList.add('disabled');
 };
 
-const showStopMode = () => {
-    buttonStart.style.display = 'none';
-    buttonStop.style.display = 'block';
-    buttonRecord.classList.remove('disabled');
+const stopwatchStopMode = () => {
+    stopwatchStartButton.style.display = 'none';
+    stopwatchStopButton.style.display = 'block';
+    stopwatchRecordButton.classList.remove('disabled');
 };
 
 const updateStopwatch = () => {
     t = Date.now() - stopwatchStartTime;
-    stopwatchDisplay.textContent = millisecondToStr(stopwatchMs + t);
+    let times = millisecondToTimes(stopwatchMs + t);
+    stopwatchDisplay.textContent =
+        `${fillDigit(times.minute)}:${fillDigit(times.second)}.${fillDigit(times.miniSecond)}`;
 };
 
-const millisecondToStr = ms => {
-    let minute = fillDigit(Math.floor(ms / 60000));
-    let second = fillDigit(Math.floor((ms / 1000) % 60));
-    let miniSecond = fillDigit(Math.floor((ms / 10) % 100));
-    return `${minute}:${second}.${miniSecond}`;
+const millisecondToTimes = ms => {
+    let times = {};
+    times.hour = Math.floor((ms / (1000 * 60 * 60)) % 60);
+    times.minute = Math.floor((ms / (1000 * 60)) % 60);
+    times.second = Math.floor((ms / 1000) % 60);
+    times.miniSecond = Math.floor((ms / 10) % 100);
+    
+    return times;
 };
 
 const startStopwatch = () => {
-    showStopMode();
+    stopwatchStopMode();
     stopwatchStartTime = Date.now();
     stopwatchSchedule = setInterval(updateStopwatch, 20);
     stopwatchDisplay.classList.add('activated');
 };
 
 const stopStopwatch = () => {
-    showStartMode();
+    stopwatchStartMode();
     clearInterval(stopwatchSchedule);
     stopwatchMs += t;
 };
@@ -362,10 +367,10 @@ const addRecord = () => {
     moveRecordToBottom();
 }
 
-buttonStart.onclick = startStopwatch;
-buttonStop.onclick = stopStopwatch;
-buttonRecord.onclick = addRecord;
-buttonReset.onclick = resetStopwatch;
+stopwatchStartButton.onclick = startStopwatch;
+stopwatchStopButton.onclick = stopStopwatch;
+stopwatchRecordButton.onclick = addRecord;
+stopwatchResetButton.onclick = resetStopwatch;
 
 const CONTAINER_HEIGHT = stopwatchRecord.parentElement.clientHeight;
 let recordPos = 0;
@@ -402,8 +407,95 @@ stopwatchRecord.onpointerdown = downEvent => {
 
 /* Timer */
 
+const TIMER_DIAL_LIMIT = { hour: 59, minute: 59, second: 59 };
+let timerDialValues = { hour: 0, minute: 0, second: 0 };
+let timerDialsWrapper = document.querySelector('.page__timer .time-selector-wrapper');
+let timerDials = document.querySelectorAll('.page__timer .time-selector');
+let timerSchedule;
+let timerMs = 0;
+
+let timerStartButton = document.querySelector('.page__timer .buttons .start');
+let timerStopButton = document.querySelector('.page__timer .buttons  .stop');
+let timerResetButton = document.querySelector('.page__timer .buttons .reset');
+
+const timerStartMode = () => {
+    timerStartButton.style.display = 'none';
+    timerStopButton.style.display = 'block';
+}
+
+const timerStopMode = () => {
+    timerStartButton.style.display = 'block';
+    timerStopButton.style.display = 'none';
+}
+
+const startTimer = () => {
+    timerStartMode();
+    lockDials(timerDialsWrapper);
+    timerMs = timerMs === 0 ? getMsByTimerDial() : timerMs;
+    timerSchedule = setInterval(updateTimer, 100);
+}
+
+const updateTimer = () => {
+    if (timerMs <= 0) {
+        resetTimer();
+        alert('타이머 종료');
+        return;
+    }
+    timerMs -= 100;
+    console.log(timerMs);
+
+    let times = millisecondToTimes(timerMs);
+    timerDialValues.hour = times.hour;
+    timerDialValues.minute = times.minute;
+    timerDialValues.second = times.second;
+
+    moveDialsByDialValues(timerDials, timerDialValues);
+}
+
+const stopTimer = () => {
+    timerStopMode();
+    clearInterval(timerSchedule);
+}
+
+const resetTimer = () => {
+    stopTimer();
+    unlockDials(timerDialsWrapper);
+
+    timerMs = 0;
+    resetDialValues(timerDialValues);
+    moveDialsByDialValues(timerDials, timerDialValues);
+}
+
+const resetDialValues = dialValues => {
+    for (let key of Object.keys(dialValues)) {
+        dialValues[key] = 0;
+    }
+}
+
+const moveDialsByDialValues = (dialElems, dialValues) => {
+    dialElems.forEach(dialElem => {
+        let dial = getDialName(dialElem);
+        dialElem.style.top = `-${dialValues[dial] * DIAL_HEIGHT}px`;
+    });
+}
+
+const lockDials = dialWrapper => dialWrapper.classList.add('locked');
+const unlockDials = dialWrapper => dialWrapper.classList.remove('locked');
+
+const getMsByTimerDial = () => {
+    let hour = -timerDialValues.hour / DIAL_HEIGHT;
+    let minute = -timerDialValues.minute / DIAL_HEIGHT;
+    let second = -timerDialValues.second / DIAL_HEIGHT;
+
+    return (hour * 60 * 60 + minute * 60 + second) * 1000;
+}
+
+timerStartButton.onclick = startTimer;
+timerStopButton.onclick = stopTimer;
+timerResetButton.onclick = resetTimer;
 
 
+addDraggingEventToDials(timerDials, timerDialValues, TIMER_DIAL_LIMIT);
 
 // prevent default events
 document.ondragstart = () => false;
@@ -412,5 +504,7 @@ document.oncontextmenu = () => false;
 
 updateClock();
 startClock();
+
 let alarmSchedule = setInterval(checkAlarm, 5000);
 moveRecordToBottom();
+

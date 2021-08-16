@@ -23,6 +23,84 @@ menu.querySelectorAll("div").forEach((item, index) => {
 });
 
 
+/* Dials */
+
+const getDialName = dial => dial.className.split(' ')[1];
+
+const addDraggingEventToDials = (dialElems, dialValues, dialLimiter) => {
+    dialElems.forEach(dialElem => {
+        let dial = getDialName(dialElem);
+
+        const pointerDown = downEvent => {
+            dialElem.classList.add('no-transition');
+            let shiftY = downEvent.clientY - dialValues[dial];
+            let moveValue = 0;
+            let t = Date.now();
+
+            const pointerMove = moveEvent => dialElem.style.top = `${moveEvent.clientY - shiftY}px`;
+
+            const pointerUp = upEvent => {
+                dialElem.classList.remove('no-transition');
+                moveValue = upEvent.clientY - downEvent.clientY;
+
+                let moveSpeed = Math.abs((downEvent.clientY - upEvent.clientY) / (Date.now() - t));
+                moveValue = moveSpeed > 1 ? moveValue * moveSpeed * 1.2 : moveValue;
+
+                dialValues[dial] = boundDialValue(dial, dialLimiter,
+                    dialValues[dial] + Math.round(moveValue / DIAL_HEIGHT) * DIAL_HEIGHT);
+                dialElem.style.top = `${dialValues[dial]}px`;
+
+                document.removeEventListener('pointermove', pointerMove);
+                document.removeEventListener('pointerup', pointerUp);
+            }
+
+            document.addEventListener('pointermove', pointerMove);
+            document.addEventListener('pointerup', pointerUp);
+        }
+
+        dialElem.addEventListener('pointerdown', pointerDown);
+    });
+};
+
+const boundDialValue = (dialName, dialLimiter, movement) =>
+    Math.max(Math.min(movement, 0), -dialLimiter[dialName] * DIAL_HEIGHT);
+
+const millisecondToTimes = ms => {
+    let times = {};
+    times.hour = Math.floor((ms / (1000 * 60 * 60)) % 60);
+    times.minute = Math.floor((ms / (1000 * 60)) % 60);
+    times.second = Math.floor((ms / 1000) % 60);
+    times.miniSecond = Math.floor((ms / 10) % 100);
+
+    return times;
+};
+
+const getMsByTimerDial = () => {
+    let hour = -timerDialValues.hour / DIAL_HEIGHT;
+    let minute = -timerDialValues.minute / DIAL_HEIGHT;
+    let second = -timerDialValues.second / DIAL_HEIGHT;
+
+    return (hour * 60 * 60 + minute * 60 + second) * 1000;
+}
+
+const resetDialValues = dialValues => {
+    for (let key of Object.keys(dialValues)) {
+        dialValues[key] = 0;
+    }
+    return dialValues;
+}
+
+const moveDialsByDialValues = (dialElems, dialValues) => {
+    dialElems.forEach(dialElem => {
+        let dial = getDialName(dialElem);
+        dialElem.style.top = `-${dialValues[dial] * DIAL_HEIGHT}px`;
+    });
+}
+
+const lockDials = dialWrapper => dialWrapper.classList.add('locked');
+const unlockDials = dialWrapper => dialWrapper.classList.remove('locked');
+
+
 /* Clock */
 
 let hands = document.querySelector('.clock__hands').children;
@@ -172,7 +250,7 @@ const updateAlarmItems = () => {
 
     alarmItems = alarmList.querySelectorAll('.alarm-item'); // get items again
 
-    alarmItems.forEach((item, index) => 
+    alarmItems.forEach((item, index) =>
         item.onpointerdown = () => {
             item.classList.add('holded');
             let timer = setTimeout(() => removeAlarmItem(item, index), 800);
@@ -234,41 +312,6 @@ const playAlarm = alarm => {
     }
 }
 
-const getDialName = dial => dial.className.split(' ')[1];
-
-const addDraggingEventToDials = (dialElems, dialValues, dialLimiter) => {
-    dialElems.forEach(dialElem => {
-        let dial = getDialName(dialElem);
-
-        dialElem.onpointerdown = downEvent => {
-            dialElem.classList.add('no-transition');
-            let shiftY = downEvent.clientY - dialValues[dial];
-            let moveValue = 0;
-            let t = Date.now();
-    
-            document.onpointermove = moveEvent => dialElem.style.top = `${moveEvent.clientY - shiftY}px`;
-    
-            document.onpointerup = upEvent => {
-                dialElem.classList.remove('no-transition');
-                moveValue = upEvent.clientY - downEvent.clientY;
-    
-                let moveSpeed = Math.abs((downEvent.clientY - upEvent.clientY) / (Date.now() - t));
-                moveValue = moveSpeed > 1 ? moveValue * moveSpeed * 1.2 : moveValue;
-    
-                dialValues[dial] = boundDialValue(dial, dialLimiter,
-                    dialValues[dial] + Math.round(moveValue / DIAL_HEIGHT) * DIAL_HEIGHT);
-                dialElem.style.top = `${dialValues[dial]}px`;
-    
-                document.onpointermove = null;
-                document.onpointerup = null;
-            }
-        }
-    });
-};
-
-const boundDialValue = (dialName, dialLimiter, movement) =>
-    Math.max(Math.min(movement, 0), -dialLimiter[dialName] * DIAL_HEIGHT);
-
 addDraggingEventToDials(alarmDials, alarmDialValues, ALARM_DIAL_LIMITS);
 
 dayItems.forEach(item => item.onclick = () => {
@@ -298,13 +341,13 @@ alarmModal.querySelector('.cancel').onclick = closeAlarmModal;
 let stopwatchSchedule;
 let stopwatchStartTime;
 let stopwatchMs = 0;
-let t = 0;
-let stopwatchDisplay = document.querySelector('.stopwatch-time');
-let stopwatchRecord = document.querySelector('.stopwatch-record ul');
-let stopwatchStartButton = document.querySelector('.stopwatch-buttons .start');
-let stopwatchStopButton = document.querySelector('.stopwatch-buttons .stop');
-let stopwatchRecordButton = document.querySelector('.stopwatch-buttons .record');
-let stopwatchResetButton = document.querySelector('.stopwatch-buttons .reset');
+let stopwatchT = 0;
+let stopwatchDisplay = document.querySelector('.page__stopwatch .time');
+let stopwatchRecord = document.querySelector('.page__stopwatch .records ul');
+let stopwatchStartButton = document.querySelector('.page__stopwatch .buttons .start');
+let stopwatchStopButton = document.querySelector('.page__stopwatch .buttons .stop');
+let stopwatchRecordButton = document.querySelector('.page__stopwatch .buttons .record');
+let stopwatchResetButton = document.querySelector('.page__stopwatch .buttons .reset');
 
 const stopwatchStartMode = () => {
     stopwatchStopButton.style.display = 'none';
@@ -323,16 +366,6 @@ const updateStopwatch = () => {
     let times = millisecondToTimes(stopwatchMs + t);
     stopwatchDisplay.textContent =
         `${fillDigit(times.minute)}:${fillDigit(times.second)}.${fillDigit(times.miniSecond)}`;
-};
-
-const millisecondToTimes = ms => {
-    let times = {};
-    times.hour = Math.floor((ms / (1000 * 60 * 60)) % 60);
-    times.minute = Math.floor((ms / (1000 * 60)) % 60);
-    times.second = Math.floor((ms / 1000) % 60);
-    times.miniSecond = Math.floor((ms / 10) % 100);
-    
-    return times;
 };
 
 const startStopwatch = () => {
@@ -387,7 +420,7 @@ stopwatchRecord.onpointerdown = downEvent => {
     let originY = downEvent.clientY;
     let moveValue = originY;
     let resultY;
-    
+
     document.onpointermove = moveEvent => {
         moveValue = originY - moveEvent.clientY;
         resultY = Math.max(Math.min(recordPos - moveValue, 100),
@@ -400,7 +433,7 @@ stopwatchRecord.onpointerdown = downEvent => {
         recordPos = resultY;
 
         document.onpointermove = null;
-        document.onpointerup = null;        
+        document.onpointerup = null;
     };
 };
 
@@ -412,7 +445,9 @@ let timerDialValues = { hour: 0, minute: 0, second: 0 };
 let timerDialsWrapper = document.querySelector('.page__timer .time-selector-wrapper');
 let timerDials = document.querySelectorAll('.page__timer .time-selector');
 let timerSchedule;
+let timerStartTime;
 let timerMs = 0;
+let timerT = 0;
 
 let timerStartButton = document.querySelector('.page__timer .buttons .start');
 let timerStopButton = document.querySelector('.page__timer .buttons  .stop');
@@ -421,6 +456,7 @@ let timerResetButton = document.querySelector('.page__timer .buttons .reset');
 const timerStartMode = () => {
     timerStartButton.style.display = 'none';
     timerStopButton.style.display = 'block';
+    lockDials(timerDialsWrapper);
 }
 
 const timerStopMode = () => {
@@ -430,21 +466,20 @@ const timerStopMode = () => {
 
 const startTimer = () => {
     timerStartMode();
-    lockDials(timerDialsWrapper);
-    timerMs = timerMs === 0 ? getMsByTimerDial() : timerMs;
+    timerStartTime = Date.now();
+    timerMs = timerMs <= 0 ? getMsByTimerDial() : timerMs;
     timerSchedule = setInterval(updateTimer, 100);
 }
 
 const updateTimer = () => {
-    if (timerMs <= 0) {
+    if (timerMs - timerT <= 0) {
         resetTimer();
         alert('타이머 종료');
         return;
     }
-    timerMs -= 100;
-    console.log(timerMs);
+    timerT = Date.now() - timerStartTime;
 
-    let times = millisecondToTimes(timerMs);
+    let times = millisecondToTimes(timerMs - timerT);
     timerDialValues.hour = times.hour;
     timerDialValues.minute = times.minute;
     timerDialValues.second = times.second;
@@ -455,47 +490,37 @@ const updateTimer = () => {
 const stopTimer = () => {
     timerStopMode();
     clearInterval(timerSchedule);
+    timerMs -= timerT;
 }
 
 const resetTimer = () => {
     stopTimer();
     unlockDials(timerDialsWrapper);
-
     timerMs = 0;
-    resetDialValues(timerDialValues);
-    moveDialsByDialValues(timerDials, timerDialValues);
-}
+    timerT = 0;
+    timerStartButton.classList.add('disabled');
 
-const resetDialValues = dialValues => {
-    for (let key of Object.keys(dialValues)) {
-        dialValues[key] = 0;
-    }
-}
-
-const moveDialsByDialValues = (dialElems, dialValues) => {
-    dialElems.forEach(dialElem => {
-        let dial = getDialName(dialElem);
-        dialElem.style.top = `-${dialValues[dial] * DIAL_HEIGHT}px`;
-    });
-}
-
-const lockDials = dialWrapper => dialWrapper.classList.add('locked');
-const unlockDials = dialWrapper => dialWrapper.classList.remove('locked');
-
-const getMsByTimerDial = () => {
-    let hour = -timerDialValues.hour / DIAL_HEIGHT;
-    let minute = -timerDialValues.minute / DIAL_HEIGHT;
-    let second = -timerDialValues.second / DIAL_HEIGHT;
-
-    return (hour * 60 * 60 + minute * 60 + second) * 1000;
+    moveDialsByDialValues(timerDials, resetDialValues(timerDialValues));
 }
 
 timerStartButton.onclick = startTimer;
 timerStopButton.onclick = stopTimer;
 timerResetButton.onclick = resetTimer;
 
-
 addDraggingEventToDials(timerDials, timerDialValues, TIMER_DIAL_LIMIT);
+
+timerDialsWrapper.onpointerdown = () => {
+    const pointerUp = () => {
+        if (timerDialValues.hour === 0 && timerDialValues.minute === 0 && timerDialValues.second === 0) {
+            timerStartButton.classList.add('disabled');
+        } else {
+            timerStartButton.classList.remove('disabled');
+        }
+        document.removeEventListener('pointerup', pointerUp);
+    };
+    document.addEventListener('pointerup', pointerUp);
+}
+
 
 // prevent default events
 document.ondragstart = () => false;
@@ -507,4 +532,3 @@ startClock();
 
 let alarmSchedule = setInterval(checkAlarm, 5000);
 moveRecordToBottom();
-

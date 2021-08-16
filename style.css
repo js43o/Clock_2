@@ -393,13 +393,15 @@ ul.week-list li {
     max-width: 420px;
     font-size: 52px;
     font-family: 'Inconsolata', monospace;
+    transition: color 0.2s, text-shadow 0.2s;
     overflow: hidden;
     touch-action: none;
 }
 
 .time-selector-wrapper.locked {
     pointer-events: none;
-    opacity: 0.75;
+    color: #111111;
+    text-shadow: 1px 0 2px white, -1px 0 2px white, 0 -1px 2px white, 0 -1px 2px white;
 }
 
 .time-selector-cover {
@@ -541,7 +543,7 @@ input[type="checkbox"]:checked + label::before {
     justify-content: space-evenly;
 }
 
-.stopwatch-time {
+.page__stopwatch .time {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -550,15 +552,15 @@ input[type="checkbox"]:checked + label::before {
     top: 25%;
     z-index: 50;
     font-family: 'Inconsolata', monospace;
-    font-size: 72px;
+    font-size: 64px;
     transition: top 0.4s;
 }
 
-.stopwatch-time.activated {
+.page__stopwatch .time.activated {
     top: 0;
 }
 
-.stopwatch-buttons {
+.page__stopwatch .buttons {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -570,7 +572,7 @@ input[type="checkbox"]:checked + label::before {
     overflow: hidden;
 }
 
-.stopwatch-buttons button {
+.page__stopwatch .buttons button {
     flex-grow: 1;
     border: none;
     color: white;
@@ -578,22 +580,22 @@ input[type="checkbox"]:checked + label::before {
     font-size: 18px;
 }
 
-.stopwatch-buttons button.disabled {
+.page__stopwatch .buttons button.disabled {
     opacity: 0.5;
     pointer-events: none;
 }
 
-.stopwatch-buttons .start {
+.page__stopwatch .buttons .start {
     display: block;
 }
 
-.stopwatch-buttons .stop {
+.page__stopwatch .buttons .stop {
     color: #111111;
     background-color: white;
     display: none;
 }
 
-.stopwatch-record {
+.page__stopwatch .records {
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -609,7 +611,7 @@ input[type="checkbox"]:checked + label::before {
     cursor: ns-resize
 }
 
-.stopwatch-record-cover {
+.page__stopwatch .records-cover {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -618,20 +620,20 @@ input[type="checkbox"]:checked + label::before {
     pointer-events: none;
 }
 
-.stopwatch-record ul {
+.page__stopwatch .records ul {
     position: absolute;
     transition: top 0.4s;
 }
 
-.stopwatch-record ul.no-transition {
+.page__stopwatch .records ul.no-transition {
     transition: none;
 }
 
-.stopwatch-record ul li:last-child {
+.page__stopwatch .records ul li:last-child {
     text-shadow: 0 0 2px white;
 }
 
-.stopwatch-record li {
+.page__stopwatch .records li {
     margin-top: 8px;
 }
 
@@ -680,7 +682,4 @@ input[type="checkbox"]:checked + label::before {
     color: #111111;
     background-color: white;
     display: none;
-}
-
-.page__timer .buttons .reset {
 }

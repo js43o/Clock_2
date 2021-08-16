@@ -163,6 +163,7 @@ let alarmDialValues = { meridiem: 0, hour: 0, minute: 0 };
 let selectedDays = new Set();
 let currentAlarm;
 
+let alarmPage = document.querySelector('.page__alarm');
 let alarmList = document.querySelector('.alarm-list');
 let alarmAddButton = document.querySelector('.alarm-adder');
 let alarmModal = document.querySelector('.alarm-modal');
@@ -269,22 +270,30 @@ const updateAlarmItems = () => {
     alarmItems = alarmList.querySelectorAll('.alarm-item'); // get items again
 
     alarmItems.forEach((item, index) => {
-        item.onpointerdown = () => {
-            item.classList.add('holded');
-            let timer = setTimeout(() => removeAlarmItem(item, index), 400);
+        item.onpointerdown = downEvent => {
+            let originY = downEvent.clientY;
+            let originScroll = alarmPage.scrollTop;
 
-            item.onpointermove = () => {
-                clearTimeout(timer);
+            item.classList.add('holded');
+            let openModal = setTimeout(() => removeAlarmItem(item, index), 600);
+
+            document.onpointermove = moveEvent => {
+                alarmPage.scrollTop = originScroll - (moveEvent.clientY - originY);
+
+                if (Math.abs(originY - moveEvent.clientY) < 16) return;
+
+                clearTimeout(openModal);
                 item.classList.remove('holded');
             };
 
-            item.onpointerup = () => {
-                clearTimeout(timer);
-                editAlarmItem(index);
+            document.onpointerup = upEvent => {
+                clearTimeout(openModal);
                 item.classList.remove('holded');
 
-                item.onpointermove = null;
-                item.onpointerup = null;
+                if (Math.abs(originY - upEvent.clientY) < 16) editAlarmItem(index);
+
+                document.onpointermove = null;
+                document.onpointerup = null;
             };
         };
     });
@@ -301,6 +310,9 @@ const removeAlarmItem = (item, index) => {
         item.remove();
         alarms.splice(index, 1);
     }
+    document.onpointermove = null;
+    document.onpointerup = null;
+
     updateAlarmItems();
 };
 

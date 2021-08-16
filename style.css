@@ -53,7 +53,7 @@ header {
     padding: 4px;
     width: 96px;
     text-align: center;
-    color: #aaaaaa;
+    color: #999999;
     transition:  color 0.2s;
 }
 
@@ -126,15 +126,16 @@ ul.week-list li {
     border: 2px solid white;
     border-radius: 50%;
     margin-bottom: 24px;
+    overflow: hidden;
 }
 
 .clock__middle {
     position: absolute;
-    top: calc(50% - 5px);
-    left: calc(50% - 5px);
+    top: calc(50% - 4px);
+    left: calc(50% - 4px);
     z-index: 4;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background-color: white;
 }
@@ -147,6 +148,7 @@ ul.week-list li {
 .clock__hands > div {
     position: absolute;
     bottom: 0;
+    border-radius: 4px;
     transform-origin: bottom center;
 }
 
@@ -154,7 +156,7 @@ ul.week-list li {
     left: calc(50% - 3px);
     z-index: 1;
     width: 6px;
-    height: 65px;
+    height: 60px;
     background-color: white;
 }
 
@@ -162,7 +164,7 @@ ul.week-list li {
     left: calc(50% - 2px);
     z-index: 2;
     width: 4px;
-    height: 90px;
+    height: 85px;
     background-color: white;
 }
 
@@ -185,87 +187,47 @@ ul.week-list li {
 }
 
 .clock__number {
+    font-family: 'Comfortaa', cursive;
     font-size: 18px;
 }
 
 .clock__number > div {
     position: absolute;
-    top: 0;
-    left: calc(50% - 5px);
-    height: 50%;
+    top: 12px;
+    left: calc(50% - 8px);
+    width: 18px;
+    height: 112px;
+    text-align: center;
     transform-origin: bottom center;
 }
 
 .clock__number > div:nth-child(1) {
-    left: calc(50% - 10px);
+    left: calc(50% - 6px);
 }
-.clock__number > div:nth-child(2) {
-    transform: rotate(30deg);
+
+.clock__scale {
+    position: relative;
+    top: 3px;
+    left: 50%;
 }
-.clock__number > div:nth-child(2) > div {
-    transform: rotate(-30deg);
+
+.clock__scale > div {
+    position: absolute;
+    width: 1px;
+    height: 240px;
 }
-.clock__number > div:nth-child(3) {
-    transform: rotate(60deg);
+
+.clock__scale > div::after {
+    display: block;
+    content: "";
+    width: 1px;
+    height: 4px;
+    background-color: white;
 }
-.clock__number > div:nth-child(3) > div {
-    transform: rotate(-60deg);
-}
-.clock__number > div:nth-child(4) {
-    transform: rotate(90deg);
-}
-.clock__number > div:nth-child(4) > div {
-    transform: rotate(-90deg);
-}
-.clock__number > div:nth-child(5) {
-    transform: rotate(120deg);
-}
-.clock__number > div:nth-child(5) > div {
-    transform: rotate(-120deg);
-}
-.clock__number > div:nth-child(6) {
-    transform: rotate(150deg);
-}
-.clock__number > div:nth-child(6) > div {
-    transform: rotate(-150deg);
-}
-.clock__number > div:nth-child(7) {
-    transform: rotate(180deg);
-}
-.clock__number > div:nth-child(7) > div {
-    transform: rotate(-180deg);
-}
-.clock__number > div:nth-child(8) {
-    transform: rotate(210deg);
-}
-.clock__number > div:nth-child(8) > div {
-    transform: rotate(-210deg);
-}
-.clock__number > div:nth-child(9) {
-    transform: rotate(240deg);
-}
-.clock__number > div:nth-child(9) > div {
-    transform: rotate(-240deg);
-}
-.clock__number > div:nth-child(10) {
-    transform: rotate(270deg);
-}
-.clock__number > div:nth-child(10) > div {
-    transform: rotate(-270deg);
-}
-.clock__number > div:nth-child(11) {
-    left: calc(50% - 10px);
-    transform: rotate(300deg);
-}
-.clock__number > div:nth-child(11) > div {
-    transform: rotate(-300deg);
-}
-.clock__number > div:nth-child(12) {
-    left: calc(50% - 10px);
-    transform: rotate(330deg);
-}
-.clock__number > div:nth-child(12) > div {
-    transform: rotate(-330deg);
+
+.clock__scale > div:nth-child(5n + 1)::after {
+    width: 3px;
+    height: 6px;
 }
 
 .clock__indicator {
@@ -315,11 +277,12 @@ ul.week-list li {
     margin: 4px 0;
     background-color: #222222;
     text-align: center;
-    transition: background-color cubic-bezier(0, 1, 0.75, 1) 0.8s;
+    transition: background-color cubic-bezier(0, 1, 0.75, 1) 0.75s, opacity cubic-bezier(0, 1, 0.75, 1) 0.4s;
 }
 
 .alarm-list .alarm-adder {
     background-color: transparent;
+    transition: none;
 }
 
 .alarm-list .alarm-item {
@@ -336,7 +299,8 @@ ul.week-list li {
 }
 
 .alarm-list .alarm-item.holded {
-    background-color: #999999;
+    background-color: #555555;
+    opacity: 1;
 }
 
 .alarm-list .alarm-item .week-list {
@@ -368,7 +332,7 @@ ul.week-list li {
     top: 100%;
     z-index: 10;
     width: 98%;
-    max-width: 480px;
+    max-width: 420px;
     height: 100%;
     padding: 16px;
     border: 1px solid white;
@@ -390,7 +354,7 @@ ul.week-list li {
     align-items: center;
     position: relative;
     width: 100%;
-    max-width: 420px;
+    max-width: 300px;
     font-size: 52px;
     font-family: 'Inconsolata', monospace;
     transition: color 0.2s, text-shadow 0.2s;

@@ -6,6 +6,7 @@ let pages = document.querySelectorAll('.page section');
 let menu = document.querySelector('.menu');
 let currentMenu = menu.children[0];
 
+
 const clickMenu = (menu, index) => {
     if (menu.classList.contains('selected')) return;
 
@@ -103,6 +104,9 @@ const unlockDials = dialWrapper => dialWrapper.classList.remove('locked');
 
 /* Clock */
 
+let scales = document.querySelectorAll('.clock__scale > div');
+let numberWrappers = document.querySelectorAll('.clock__number > div');
+let numbers = document.querySelectorAll('.clock__number > div > div');
 let hands = document.querySelector('.clock__hands').children;
 let date = document.querySelector('.clock__indicator__date');
 let time = document.querySelector('.clock__indicator__time');
@@ -133,6 +137,19 @@ const updateClock = () => {
 
 const startClock = () => setInterval(updateClock, 1000);
 
+scales.forEach((scale, index) => {
+    scale.style.transform = `rotate(${6 * index}deg)`;
+});
+
+numberWrappers.forEach((wrapper, index) => {
+    wrapper.style.transform = `rotate(${30 * index}deg)`;
+});
+
+numbers.forEach((number, index) => {
+    number.style.transform = `rotate(${-30 * index}deg)`;
+});
+
+
 
 /* Alarm */
 
@@ -140,6 +157,7 @@ const ALARM_DIAL_LIMITS = { meridiem: 1, hour: 11, minute: 59 };
 const DIAL_HEIGHT = 77;
 const DAYS_NAME = ['일', '월', '화', '수', '목', '금', '토'];
 
+let alarmSchedule;
 let alarms = [];
 let alarmDialValues = { meridiem: 0, hour: 0, minute: 0 };
 let selectedDays = new Set();
@@ -232,7 +250,7 @@ const addAlarmItem = alarm => {
     DAYS_NAME.forEach(day => {
         if (alarm.days.includes(day)) alarmHTML += `<li class="selected">${day}</li>`;
         else alarmHTML += `<li class="no-selected">${day}</li>`;
-    })
+    });
 
     alarmHTML += `</ul>${alarm.repeat ? '<i class="fas fa-sync-alt"></i>' : ''}`;
 
@@ -250,20 +268,26 @@ const updateAlarmItems = () => {
 
     alarmItems = alarmList.querySelectorAll('.alarm-item'); // get items again
 
-    alarmItems.forEach((item, index) =>
+    alarmItems.forEach((item, index) => {
         item.onpointerdown = () => {
             item.classList.add('holded');
-            let timer = setTimeout(() => removeAlarmItem(item, index), 800);
+            let timer = setTimeout(() => removeAlarmItem(item, index), 400);
+
+            item.onpointermove = () => {
+                clearTimeout(timer);
+                item.classList.remove('holded');
+            };
 
             item.onpointerup = () => {
                 clearTimeout(timer);
                 editAlarmItem(index);
                 item.classList.remove('holded');
 
+                item.onpointermove = null;
                 item.onpointerup = null;
             };
-        }
-    );
+        };
+    });
 };
 
 const editAlarmItem = index => {
@@ -310,7 +334,7 @@ const playAlarm = alarm => {
         alarm.enable = false;
         updateAlarmItems();
     }
-}
+};
 
 addDraggingEventToDials(alarmDials, alarmDialValues, ALARM_DIAL_LIMITS);
 
@@ -338,16 +362,19 @@ alarmModal.querySelector('.cancel').onclick = closeAlarmModal;
 
 /* Stopwatch */
 
-let stopwatchSchedule;
-let stopwatchStartTime;
-let stopwatchMs = 0;
-let stopwatchT = 0;
 let stopwatchDisplay = document.querySelector('.page__stopwatch .time');
 let stopwatchRecord = document.querySelector('.page__stopwatch .records ul');
 let stopwatchStartButton = document.querySelector('.page__stopwatch .buttons .start');
 let stopwatchStopButton = document.querySelector('.page__stopwatch .buttons .stop');
 let stopwatchRecordButton = document.querySelector('.page__stopwatch .buttons .record');
 let stopwatchResetButton = document.querySelector('.page__stopwatch .buttons .reset');
+
+const CONTAINER_HEIGHT = stopwatchRecord.parentElement.clientHeight;
+let stopwatchSchedule;
+let stopwatchStartTime;
+let stopwatchMs = 0;
+let stopwatchT = 0;
+let recordPos = 0;
 
 const stopwatchStartMode = () => {
     stopwatchStopButton.style.display = 'none';
@@ -398,15 +425,7 @@ const addRecord = () => {
         - </b> ${stopwatchDisplay.textContent}`);
     stopwatchRecord.append(li);
     moveRecordToBottom();
-}
-
-stopwatchStartButton.onclick = startStopwatch;
-stopwatchStopButton.onclick = stopStopwatch;
-stopwatchRecordButton.onclick = addRecord;
-stopwatchResetButton.onclick = resetStopwatch;
-
-const CONTAINER_HEIGHT = stopwatchRecord.parentElement.clientHeight;
-let recordPos = 0;
+};
 
 const moveRecord = (pos = recordPos) => stopwatchRecord.style.top = pos + 'px';
 
@@ -437,21 +456,26 @@ stopwatchRecord.onpointerdown = downEvent => {
     };
 };
 
+stopwatchStartButton.onclick = startStopwatch;
+stopwatchStopButton.onclick = stopStopwatch;
+stopwatchRecordButton.onclick = addRecord;
+stopwatchResetButton.onclick = resetStopwatch;
+
 
 /* Timer */
 
-const TIMER_DIAL_LIMIT = { hour: 59, minute: 59, second: 59 };
-let timerDialValues = { hour: 0, minute: 0, second: 0 };
 let timerDialsWrapper = document.querySelector('.page__timer .time-selector-wrapper');
 let timerDials = document.querySelectorAll('.page__timer .time-selector');
+let timerStartButton = document.querySelector('.page__timer .buttons .start');
+let timerStopButton = document.querySelector('.page__timer .buttons  .stop');
+let timerResetButton = document.querySelector('.page__timer .buttons .reset');
+
+const TIMER_DIAL_LIMIT = { hour: 59, minute: 59, second: 59 };
+let timerDialValues = { hour: 0, minute: 0, second: 0 };
 let timerSchedule;
 let timerStartTime;
 let timerMs = 0;
 let timerT = 0;
-
-let timerStartButton = document.querySelector('.page__timer .buttons .start');
-let timerStopButton = document.querySelector('.page__timer .buttons  .stop');
-let timerResetButton = document.querySelector('.page__timer .buttons .reset');
 
 const timerStartMode = () => {
     timerStartButton.style.display = 'none';
@@ -527,8 +551,11 @@ document.ondragstart = () => false;
 document.onselectstart = () => false;
 document.oncontextmenu = () => false;
 
-updateClock();
-startClock();
+const init = () => {
+    updateClock();
+    startClock();
+    alarmSchedule = setInterval(checkAlarm, 5000);
+    moveRecordToBottom();
+}
 
-let alarmSchedule = setInterval(checkAlarm, 5000);
-moveRecordToBottom();
+init();

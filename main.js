@@ -551,11 +551,11 @@ document.ondragstart = () => false;
 document.onselectstart = () => false;
 document.oncontextmenu = () => false;
 
-const init = () => {
+const inititalize = () => {
     updateClock();
     startClock();
     alarmSchedule = setInterval(checkAlarm, 5000);
     moveRecordToBottom();
 }
 
-init();
+inititalize();

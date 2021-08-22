@@ -1,11 +1,15 @@
 /* Page */
 
-const deviceWidth = document.documentElement.clientWidth;
 let pageWrapper = document.querySelector('.page-wrapper');
 let pages = document.querySelectorAll('.page section');
 let menu = document.querySelector('.menu');
 let currentMenu = menu.children[0];
+let currentMenuIndex = 0;
+let resizeTimerId;
 
+const getDeviceWidth = () => document.documentElement.clientWidth;
+
+const movePageWithIndex = index => pageWrapper.style.left = `${-getDeviceWidth() * index}px`;
 
 const clickMenu = (menu, index) => {
     if (menu.classList.contains('selected')) return;
@@ -13,15 +17,19 @@ const clickMenu = (menu, index) => {
     currentMenu.classList.remove('selected');
     menu.classList.add('selected');
     currentMenu = menu;
+    currentMenuIndex = index;
 
-    movePageWidthIndex(index);
+    movePageWithIndex(index);
 };
-
-const movePageWidthIndex = index => pageWrapper.style.left = `${-deviceWidth * index}px`;
 
 menu.querySelectorAll("div").forEach((item, index) => {
     item.onclick = () => clickMenu(item, index);
 });
+
+window.onresize = () => {
+    clearTimeout(resizeTimerId);
+    resizeTimerId = setTimeout(() => movePageWithIndex(currentMenuIndex), 100);
+}
 
 
 /* Dials */

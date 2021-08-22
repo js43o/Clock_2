@@ -45,21 +45,24 @@ header {
     justify-content: space-around;
     align-items: center;
     flex-shrink: 0;
+    position: fixed;
     bottom: 0;
     width: 100%;
     padding: 8px;
+    background-color: #111111;
 }
 
 .menu > div {
     padding: 4px;
     width: 96px;
+    border: 1px solid transparent;
     text-align: center;
     color: #999999;
     transition:  color 0.2s;
 }
 
 .menu > div.selected {
-    border: 1px solid white;
+    border-color: white;
     border-radius: 4px;
     color: white;
     font-weight: bold;
@@ -73,6 +76,7 @@ header {
     left: 0;
     width: 100%;
     height: 100%;
+    margin-bottom: 64px;
     transition: left cubic-bezier(0, 1, 0.75, 1) 0.4s;
 }
 
@@ -266,8 +270,8 @@ ul.week-list li {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100%;
     padding: 8px;
+    margin-bottom: 64px;
 }
 
 .alarm-list > li {

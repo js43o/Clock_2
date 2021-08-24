@@ -280,13 +280,13 @@ const updateAlarmItems = () => {
     alarmItems.forEach((item, index) => {
         item.onpointerdown = downEvent => {
             let originY = downEvent.clientY;
-            let originScroll = alarmPage.scrollTop;
+            let originScroll = alarmList.scrollTop;
 
             item.classList.add('holded');
             let openModal = setTimeout(() => removeAlarmItem(item, index), 600);
 
             document.onpointermove = moveEvent => {
-                alarmPage.scrollTop = originScroll - (moveEvent.clientY - originY);
+                alarmList.scrollTop = originScroll - (moveEvent.clientY - originY);
 
                 if (Math.abs(originY - moveEvent.clientY) < 16) return;
 

@@ -1,3 +1,12 @@
+:root {
+    --color-black_alpha: #11111100;
+    --color-black: #111111;
+    --color-dark-gray: #222222;
+    --color-gray: #555555;
+    --color-bright-gray: #999999;
+    --color-white: #ffffff;
+}
+
 /* Common */
 
 * {
@@ -26,55 +35,51 @@ body {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    background-color: #111111;
-    color: white;
+    background-color: var(--color-black);
+    color: var(--color-white);
     font-size: 18px;
 }
 
 header {
     top: 0;
+    z-index: 10;
     width: 100%;
     height: 36px;
     padding: 8px;
+    background-color: var(--color-black);
     text-align: center;
     font-family: 'Comfortaa', cursive;
 }
 
 .menu {
     display: flex;
-    flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    flex-shrink: 0;
     position: fixed;
     bottom: 0;
     width: 100%;
     height: 54px;
     padding: 8px;
-    background-color: #111111;
+    background-color: var(--color-black);
 }
 
 .menu > div {
     padding: 4px;
     width: 96px;
     border: 1px solid transparent;
+    color: var(--color-bright-gray);
     text-align: center;
-    color: #999999;
     transition:  color 0.2s;
 }
 
 .menu > div.selected {
-    border-color: white;
+    border-color: var(--color-white);
     border-radius: 4px;
-    color: white;
-    font-weight: bold;
+    color: var(--color-white);
 }
 
 .page-wrapper {
     display: flex;
-    flex-direction: row;
-    flex-grow: 1;
-    flex-shrink: 1;
     position: relative;
     left: 0;
     width: 100%;
@@ -90,8 +95,6 @@ header {
     flex-shrink: 0;
     align-items: center;
     width: 100%;
-    height: 100%;
-    padding: 8px;
 }
 
 .clickable {
@@ -105,19 +108,15 @@ header {
 ul.week-list {
     display: flex;
     flex-direction: row;
+    justify-content: space-evenly;
     align-items: center;
 }
 
-ul.week-list li {
-    margin: 0;
-    padding: 4px;
-}
-
-.week-list *:first-child {
+.week-list > li:first-child {
     color: rgb(255, 64, 64);
 }
 
-.week-list *:last-child {
+.week-list > li:last-child {
     color: rgb(64, 192, 255);
 }
 
@@ -133,21 +132,19 @@ ul.week-list li {
     width: 250px;
     height: 250px;
     flex-shrink: 0;
-    border: 2px solid white;
+    border: 2px solid var(--color-white);
     border-radius: 50%;
     margin-bottom: 24px;
-    overflow: hidden;
 }
 
 .clock__middle {
     position: absolute;
     top: calc(50% - 4px);
     left: calc(50% - 4px);
-    z-index: 4;
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: white;
+    background-color: var(--color-white);
 }
 
 .clock__hands {
@@ -164,26 +161,23 @@ ul.week-list li {
 
 .clock__hands__hour {
     left: calc(50% - 3px);
-    z-index: 1;
     width: 6px;
     height: 60px;
-    background-color: white;
+    background-color: var(--color-white);
 }
 
 .clock__hands__minute {
     left: calc(50% - 2px);
-    z-index: 2;
     width: 4px;
     height: 85px;
-    background-color: white;
+    background-color: var(--color-white);
 }
 
 .clock__hands__second {
     left: calc(50% - 1px);
-    z-index: 3;
     width: 2px;
     height: 100px;
-    background-color: white;
+    background-color: var(--color-white);
 }
 
 .clock__hands__second::before {
@@ -193,7 +187,8 @@ ul.week-list li {
     width: 2px;
     height: 40px;
     content: "";
-    background-color: white;
+    border-radius: 4px;
+    background-color: var(--color-white);
 }
 
 .clock__number {
@@ -232,7 +227,7 @@ ul.week-list li {
     content: "";
     width: 1px;
     height: 4px;
-    background-color: white;
+    background-color: var(--color-white);
 }
 
 .clock__scale > div:nth-child(5n + 1)::after {
@@ -260,12 +255,14 @@ ul.week-list li {
 /* Alarm */
 
 .alarm-adder {
+    margin: 4px 0;
     text-align: center;
+    font-size: 16px;
 }
 
 .alarm-adder i {
-    padding: 16px;
-    border: 1px solid white;
+    padding: 12px;
+    border: 1px solid var(--color-white);
     border-radius: 50%;
 }
 
@@ -274,21 +271,19 @@ ul.week-list li {
     flex-direction: column;
     width: 100%;
     height: 100%;
-    max-height: 100%;
-    flex-grow: 0;
     overflow-y: scroll;
     padding: 8px;
 }
 
-.alarm-list > li {
+.alarm-list .alarm-item {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
     border-radius: 8px;
-    padding: 8px;
+    padding: 4px;
     margin: 4px 0;
-    background-color: #222222;
+    background-color: var(--color-dark-gray);
     text-align: center;
     touch-action: none;
     transition: background-color cubic-bezier(0, 1, 0.75, 1) 0.6s,
@@ -306,7 +301,7 @@ ul.week-list li {
 }
 
 .alarm-list .alarm-item.repeat {
-    border: 1px solid white;
+    border: 1px solid var(--color-white);
 }
 
 .alarm-list .alarm-item.disabled {
@@ -314,7 +309,7 @@ ul.week-list li {
 }
 
 .alarm-list .alarm-item.holded {
-    background-color: #555555;
+    background-color: var(--color-gray);
     opacity: 1;
 }
 
@@ -328,7 +323,6 @@ ul.week-list li {
 }
 
 .alarm-list .alarm-item .week-list li.selected {
-    font-weight: bold;
     opacity: 1;
 }
 
@@ -345,27 +339,23 @@ ul.week-list li {
     align-items: center;
     position: fixed;
     top: 100%;
-    z-index: 10;
-    width: 98%;
+    z-index: 20;
+    width: 95%;
     max-width: 420px;
     height: 100%;
     padding: 16px;
-    border: 1px solid white;
+    border: 1px solid var(--color-white);
     border-radius: 8px 8px 0 0;
-    background-color: #111111;
-    opacity: 0;
-    transition: top 0.4s, opacity 0.4s;
+    background-color: var(--color-black);
+    transition: top 0.4s;
 }
 
 .alarm-modal.opened {
     top: 8px;
-    opacity: 1;
 }
 
 .time-selector-wrapper {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
     align-items: center;
     position: relative;
     width: 100%;
@@ -386,18 +376,15 @@ ul.week-list li {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: linear-gradient(#111111 0%, #11111100 30%, #11111100 70%, #111111 100%);
-    z-index: 5;
+    background: linear-gradient(var(--color-black) 0%, var(--color-black_alpha) 25%,
+                var(--color-black_alpha) 75%, var(--color-black) 100%);
+    z-index: 10;
     pointer-events: none;
 }
 
 .time-selector {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
     position: relative;
-    width: 33%;
+    flex-grow: 1;
     height: 77px;
     cursor: ns-resize;
     transition: top 0.2s;
@@ -405,7 +392,6 @@ ul.week-list li {
 
 .time-selector > div {
     display: flex;
-    flex-shrink: 0;
     justify-content: center;
     align-items: center;
     height: 77px;
@@ -416,10 +402,6 @@ ul.week-list li {
 }
 
 .alarm-modal .day-selector {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: center;
     width: 100%;
 }
 
@@ -429,15 +411,14 @@ ul.week-list li {
     align-items: center;
     width: 40px;
     height: 40px;
-    border: 1px solid #ffffff00;
+    border: 1px solid transparent;
     border-radius: 50%;
     opacity: 0.5;
     transition: border 0.2s, opacity 0.2s;
 }
 
 .alarm-modal .day-selector li.selected {
-    border-color: white;
-    font-weight: bold;
+    border-color: var(--color-white);
     opacity: 1;
 }
 
@@ -453,8 +434,8 @@ input#alarm-name {
     width: 100%;
     height: 36px;
     border: none;
-    border-bottom: 1px solid white;
-    color: white;
+    border-bottom: 1px solid var(--color-white);
+    color: var(--color-white);
     background-color: transparent;
     font-size: 24px;
 }
@@ -466,52 +447,46 @@ input[type="checkbox"] {
 input[type="checkbox"] + label {
     display: flex;
     align-items: center;
-    align-self: flex-start;
 }
 
 input[type="checkbox"] + label::before {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     width: 18px;
     height: 18px;
-    border: 1px solid white;
+    border: 1px solid var(--color-white);
     border-radius: 4px;
     margin-right: 8px;
     content: "";
-    text-align: center;
-    font-size: 14px;
     transition: background-color cubic-bezier(0, 1, 0.75, 1) 0.2s;
 }
 
 input[type="checkbox"]:checked + label::before {
-    background-color: white;
-    box-shadow: 0 0 4px white;
+    background-color: var(--color-white);
+    box-shadow: 0 0 4px var(--color-white);
 }
 
 .alarm-modal .buttons {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     width: 100%;
 }
 
 .alarm-modal .buttons button {
+    flex-grow: 0;
     width: 48%;
     height: 60px;
-    border: 1px solid white;
+    border: 1px solid var(--color-white);
     border-radius: 8px;
     font-size: 18px;
 }
 
 .alarm-modal .buttons .cancel {
-    color: white;
-    background-color: #111111;
+    color: var(--color-white);
+    background-color: var(--color-black);
 }
 
 .alarm-modal .buttons .ok {
-    color: #111111;
-    background-color: white;
+    color: var(--color-black);
+    background-color: var(--color-white);
 }
 
 
@@ -522,13 +497,9 @@ input[type="checkbox"]:checked + label::before {
 }
 
 .page__stopwatch .time {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     position: relative;
     top: 25%;
-    z-index: 50;
+    z-index: 10;
     font-family: 'Inconsolata', monospace;
     font-size: 64px;
     transition: top 0.4s;
@@ -540,25 +511,23 @@ input[type="checkbox"]:checked + label::before {
 
 .page__stopwatch .buttons {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
     width: 80%;
     max-width: 480px;
     height: 48px;
-    border: 1px solid white;
+    border: 1px solid var(--color-white);
     border-radius: 8px;
     overflow: hidden;
 }
 
-.page__stopwatch .buttons button {
+.buttons button {
     flex-grow: 1;
     border: none;
-    color: white;
-    background-color: #111111;
+    color: var(--color-white);
+    background-color: var(--color-black);
     font-size: 18px;
 }
 
-.page__stopwatch .buttons button.disabled {
+button.disabled {
     opacity: 0.5;
     pointer-events: none;
 }
@@ -568,18 +537,16 @@ input[type="checkbox"]:checked + label::before {
 }
 
 .page__stopwatch .buttons .stop {
-    color: #111111;
-    background-color: white;
+    color: var(--color-black);
+    background-color: var(--color-white);
     display: none;
 }
 
 .page__stopwatch .records {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
     align-items: center;
     position: relative;
-    top: 20px;
     width: 80%;
     max-width: 480px;
     height: 40%;
@@ -589,13 +556,8 @@ input[type="checkbox"]:checked + label::before {
     cursor: ns-resize
 }
 
-.page__stopwatch .records-cover {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(#111111 0%, #11111100 30%, #11111100 70%, #11111100 100%);
-    z-index: 10;
-    pointer-events: none;
+.page__stopwatch .time-selector-cover {
+    background: linear-gradient(var(--color-black) 0%, var(--color-black_alpha) 25%);
 }
 
 .page__stopwatch .records ul {
@@ -608,7 +570,7 @@ input[type="checkbox"]:checked + label::before {
 }
 
 .page__stopwatch .records ul li:last-child {
-    text-shadow: 0 0 2px white;
+    text-shadow: 0 0 2px var(--color-white);
 }
 
 .page__stopwatch .records li {
@@ -624,28 +586,12 @@ input[type="checkbox"]:checked + label::before {
 
 .page__timer .buttons {
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    z-index: 50px;
     width: 50%;
     max-width: 320px;
     height: 48px;
-    border: 1px solid white;
+    border: 1px solid var(--color-white);
     border-radius: 8px;
     overflow: hidden;
-}
-
-.page__timer .buttons button {
-    flex-grow: 1;
-    border: none;
-    color: white;
-    background-color: #111111;
-    font-size: 18px;
-}
-
-.page__timer .buttons button.disabled {
-    opacity: 0.5;
-    pointer-events: none;
 }
 
 .page__timer .buttons .start {
@@ -653,7 +599,7 @@ input[type="checkbox"]:checked + label::before {
 }
 
 .page__timer .buttons .stop {
-    color: #111111;
-    background-color: white;
+    color: var(--color-black);
+    background-color: var(--color-white);
     display: none;
 }

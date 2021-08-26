@@ -69,7 +69,7 @@ header {
     border: 1px solid transparent;
     color: var(--color-bright-gray);
     text-align: center;
-    transition:  color 0.2s;
+    transition: color 0.2s;
 }
 
 .menu > div.selected {
@@ -81,12 +81,11 @@ header {
 .page-wrapper {
     display: flex;
     position: relative;
-    left: 0;
     width: 100%;
     height: 100%;
     max-height: calc(100% - 36px - 54px);
     margin-bottom: 54px;
-    transition: left cubic-bezier(0, 1, 0.75, 1) 0.4s;
+    transition: transform cubic-bezier(0, 1, 0.75, 1) 0.4s;
 }
 
 .page-wrapper section {
@@ -338,20 +337,20 @@ ul.week-list {
     justify-content: space-evenly;
     align-items: center;
     position: fixed;
-    top: 100%;
-    z-index: 20;
+    z-index: 50;
     width: 95%;
-    max-width: 420px;
+    max-width: 360px;
     height: 100%;
     padding: 16px;
     border: 1px solid var(--color-white);
-    border-radius: 8px 8px 0 0;
+    border-radius: 8px;
     background-color: var(--color-black);
-    transition: top 0.4s;
+    transform: translateY(100%);
+    transition: transform 0.4s;
 }
 
 .alarm-modal.opened {
-    top: 8px;
+    transform: translateY(0%);
 }
 
 .time-selector-wrapper {
@@ -498,15 +497,10 @@ input[type="checkbox"]:checked + label::before {
 
 .page__stopwatch .time {
     position: relative;
-    top: 25%;
     z-index: 10;
     font-family: 'Inconsolata', monospace;
     font-size: 64px;
     transition: top 0.4s;
-}
-
-.page__stopwatch .time.activated {
-    top: 0;
 }
 
 .page__stopwatch .buttons {
@@ -547,13 +541,18 @@ button.disabled {
     flex-direction: column;
     align-items: center;
     position: relative;
+    z-index: 5;
     width: 80%;
     max-width: 480px;
-    height: 40%;
-    z-index: 5;
+    height: 0%;
     overflow: hidden;
     touch-action: none;
-    cursor: ns-resize
+    cursor: ns-resize;
+    transition: height 0.4s;
+}
+
+.page__stopwatch .records.activated {
+    height: 40%;
 }
 
 .page__stopwatch .time-selector-cover {

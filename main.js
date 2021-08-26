@@ -9,7 +9,8 @@ let resizeTimerId;
 
 const getDeviceWidth = () => document.documentElement.clientWidth;
 
-const movePageWithIndex = index => pageWrapper.style.left = `${-getDeviceWidth() * index}px`;
+const movePageWithIndex = index =>
+    pageWrapper.style.transform = `translateX(${-getDeviceWidth() * index}px)`;
 
 const clickMenu = (menu, index) => {
     if (menu.classList.contains('selected')) return;
@@ -389,7 +390,7 @@ let stopwatchStopButton = document.querySelector('.page__stopwatch .buttons .sto
 let stopwatchRecordButton = document.querySelector('.page__stopwatch .buttons .record');
 let stopwatchResetButton = document.querySelector('.page__stopwatch .buttons .reset');
 
-const CONTAINER_HEIGHT = stopwatchRecord.parentElement.clientHeight;
+let containerHeight = 0;
 let stopwatchSchedule;
 let stopwatchStartTime;
 let stopwatchMs = 0;
@@ -419,7 +420,7 @@ const startStopwatch = () => {
     stopwatchStopMode();
     stopwatchStartTime = Date.now();
     stopwatchSchedule = setInterval(updateStopwatch, 20);
-    stopwatchDisplay.classList.add('activated');
+    stopwatchRecord.parentElement.classList.add('activated');
 };
 
 const stopStopwatch = () => {
@@ -434,7 +435,7 @@ const resetStopwatch = () => {
     t = 0;
 
     stopwatchDisplay.textContent = '00:00.00';
-    stopwatchDisplay.classList.remove('activated');
+    stopwatchRecord.parentElement.classList.remove('activated');
     stopwatchRecord.textContent = '';
     moveRecordToBottom();
 };
@@ -450,7 +451,8 @@ const addRecord = () => {
 const moveRecord = (pos = recordPos) => stopwatchRecord.style.top = pos + 'px';
 
 const moveRecordToBottom = () => {
-    recordPos = CONTAINER_HEIGHT - stopwatchRecord.clientHeight;
+    containerHeight = stopwatchRecord.parentElement.clientHeight;
+    recordPos = containerHeight - stopwatchRecord.clientHeight;
     moveRecord();
 };
 
@@ -463,7 +465,7 @@ stopwatchRecord.onpointerdown = downEvent => {
     document.onpointermove = moveEvent => {
         moveValue = originY - moveEvent.clientY;
         resultY = Math.max(Math.min(recordPos - moveValue, 100),
-            CONTAINER_HEIGHT - stopwatchRecord.clientHeight)
+            containerHeight - stopwatchRecord.clientHeight)
         moveRecord(resultY);
     };
 
@@ -575,7 +577,6 @@ const init = () => {
     updateClock();
     startClock();
     alarmSchedule = setInterval(checkAlarm, 5000);
-    moveRecordToBottom();
 }
 
 init();

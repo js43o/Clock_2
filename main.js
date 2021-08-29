@@ -165,6 +165,7 @@ numbers.forEach((number, index) => {
 const ALARM_DIAL_LIMITS = { meridiem: 1, hour: 11, minute: 59 };
 const DIAL_HEIGHT = 77;
 const DAYS_NAME = ['일', '월', '화', '수', '목', '금', '토'];
+const ALARMS_LOCAL = "alarms_local";
 
 let alarmSchedule;
 let alarms = [];
@@ -182,6 +183,19 @@ let alarmName = document.querySelector('input#alarm-name');
 let isRepeated = document.querySelector('input#alarm-repeated');
 let isEnabled = document.querySelector('input#alarm-enabled');
 
+class Alarm {
+    constructor(name, enable, checkable, repeat, meridiem, hour, minute, days) {
+        this.name = name;
+        this.enable = enable;
+        this.checkable = checkable;
+        this.repeat = repeat;
+        this.meridiem = meridiem;
+        this.hour = hour;
+        this.minute = minute;
+        this.days = days;
+    }
+}
+
 const openAlarmModal = () => {
     if (alarmModal.classList.contains('opened')) return;
     alarmModal.classList.add('opened');
@@ -193,15 +207,7 @@ const closeAlarmModal = () => {
 };
 
 const resetAlarmModal = () => {
-    setAlarmModal({
-        enable: true,
-        meridiem: 0,
-        hour: 0,
-        minute: 0,
-        days: [],
-        name: '',
-        repeat: false
-    });
+    setAlarmModal(new Alarm('', true, true, false, 0, 0, 0, []));
     selectedDays.clear();
     dayItems.forEach(item => item.classList.remove('selected'));
 };
@@ -224,20 +230,20 @@ const setAlarmDialValues = (mer, h, m) => {
 };
 
 const addAlarm = () => {
-    let newAlarm = {};
-    alarms.push(newAlarm);
+    let alarm = new Alarm('', true, true, false, 0, 0, 0, []);
+    alarms.push(alarm);
 
-    return newAlarm;
+    return alarm;
 };
 
 const setAlarm = alarm => {
-    alarm.checkable = true;    // is detected by alarm checker
+    alarm.name = alarmName.value;
+    alarm.enable = isEnabled.checked;
+    alarm.checkable = true;    // to be detected by alarm checker again
+    alarm.repeat = isRepeated.checked;
     alarm.meridiem = -alarmDialValues.meridiem / DIAL_HEIGHT;
     alarm.hour = -(12 * (alarmDialValues.meridiem / DIAL_HEIGHT) + (alarmDialValues.hour / DIAL_HEIGHT));
     alarm.minute = -alarmDialValues.minute / DIAL_HEIGHT;
-    alarm.name = alarmName.value;
-    alarm.enable = isEnabled.checked;
-    alarm.repeat = isRepeated.checked;
     alarm.days = [];
     selectedDays.forEach(day => alarm.days.push(day));
 }
@@ -248,7 +254,6 @@ const addAlarmItem = alarm => {
 
     if (!alarm.enable) alarmItem.classList.add('disabled');
     if (alarm.repeat) alarmItem.classList.add('repeat');
-
 
     let alarmHTML = `
     <div>${alarm.name}</div>
@@ -271,13 +276,19 @@ const addAlarmItem = alarm => {
 };
 
 const updateAlarmItems = () => {
+    
+    saveAlarmStorage();
+
     let alarmItems = alarmList.querySelectorAll('.alarm-item');
 
     alarmItems.forEach(item => item.remove());
     alarms.forEach(alarm => addAlarmItem(alarm));
 
     alarmItems = alarmList.querySelectorAll('.alarm-item'); // get items again
+    addEventListenerToAlarmItems(alarmItems);
+};
 
+const addEventListenerToAlarmItems = alarmItems => {
     alarmItems.forEach((item, index) => {
         item.onpointerdown = downEvent => {
             let originY = downEvent.clientY;
@@ -306,7 +317,7 @@ const updateAlarmItems = () => {
             };
         };
     });
-};
+}
 
 const editAlarmItem = index => {
     currentAlarm = alarms[index];
@@ -333,13 +344,11 @@ const compareDays = (a, b) => {
 
 const checkAlarm = () => {
     let today = new Date();
-
     alarms.forEach(alarm => {
-        if (!alarm.enable ||
-            !alarm.checkable ||
+        if (!alarm.enable || !alarm.checkable ||
+            !alarm.days.includes(DAYS_NAME[today.getDay()]) ||
             alarm.hour !== today.getHours() ||
-            alarm.minute !== today.getMinutes() ||
-            !alarm.days.includes(DAYS_NAME[today.getDay()])) return;
+            alarm.minute !== today.getMinutes()) return;
 
         playAlarm(alarm);
     });
@@ -356,6 +365,16 @@ const playAlarm = alarm => {
         updateAlarmItems();
     }
 };
+
+const saveAlarmStorage = () => {
+    localStorage.setItem(ALARMS_LOCAL, JSON.stringify(alarms));
+}
+
+const loadAlarmStorage = () => {
+    let res = JSON.parse(localStorage.getItem(ALARMS_LOCAL));
+    alarms = res || [];
+    updateAlarmItems();
+}
 
 addDraggingEventToDials(alarmDials, alarmDialValues, ALARM_DIAL_LIMITS);
 
@@ -576,6 +595,7 @@ document.oncontextmenu = () => false;
 const init = () => {
     updateClock();
     startClock();
+    loadAlarmStorage();
     alarmSchedule = setInterval(checkAlarm, 5000);
 }
 

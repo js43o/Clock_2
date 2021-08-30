@@ -172,6 +172,7 @@ let alarms = [];
 let alarmDialValues = { meridiem: 0, hour: 0, minute: 0 };
 let selectedDays = new Set();
 let currentAlarm;
+let alarmEditMode = 0; // 0 = add, 1 = edit
 
 let alarmPage = document.querySelector('.page__alarm');
 let alarmList = document.querySelector('.alarm-list');
@@ -196,6 +197,8 @@ class Alarm {
     }
 }
 
+const getAlarmItem = alarm => alarmList.children[alarms.indexOf(alarm)];
+
 const openAlarmModal = () => {
     if (alarmModal.classList.contains('opened')) return;
     alarmModal.classList.add('opened');
@@ -217,7 +220,8 @@ const setAlarmModal = alarm => {
     alarm.days.forEach(day => selectedDays.add(day));
 
     alarmDials.forEach(dial => dial.style.top = alarmDialValues[dial.className.split(' ')[1]] + 'px');
-    dayItems.forEach(item => alarm.days.includes(item.textContent) ? item.classList.add('selected') : '');
+    dayItems.forEach(item => alarm.days.includes(item.textContent) ?
+        item.classList.add('selected') : item.classList.remove('selected'));
     alarmName.value = alarm.name;
     isEnabled.checked = alarm.enable;
     isRepeated.checked = alarm.repeat;
@@ -252,8 +256,15 @@ const addAlarmItem = alarm => {
     let alarmItem = document.createElement('li');
     alarmItem.className = 'alarm-item';
 
-    if (!alarm.enable) alarmItem.classList.add('disabled');
-    if (alarm.repeat) alarmItem.classList.add('repeat');
+    setAlarmItem(alarmItem, alarm);
+    
+    alarmList.lastElementChild.before(alarmItem);
+    addEventListenerToAlarmItem(alarmItem, alarm);
+};
+
+const setAlarmItem = (alarmItem, alarm) => {
+    alarm.enable ? alarmItem.classList.remove('disabled') : alarmItem.classList.add('disabled');
+    alarm.repeat ? alarmItem.classList.add('repeat') : alarmItem.classList.remove('repeat');
 
     let alarmHTML = `
     <div>${alarm.name}</div>
@@ -263,77 +274,62 @@ const addAlarmItem = alarm => {
         <ul class="week-list">`;
 
     DAYS_NAME.forEach(day => {
-        if (alarm.days.includes(day)) alarmHTML += `<li class="selected">${day}</li>`;
-        else alarmHTML += `<li class="no-selected">${day}</li>`;
+        alarmHTML += alarm.days.includes(day) ?
+            `<li class="selected">${day}</li>` : `<li class="no-selected">${day}</li>`;
     });
 
     alarmHTML += `</ul>${alarm.repeat ? '<i class="fas fa-sync-alt"></i>' : ''}`;
 
-
+    alarmItem.innerHTML = '';
     alarmItem.insertAdjacentHTML('beforeend', alarmHTML);
-
-    alarmList.lastElementChild.before(alarmItem);
-};
-
-const updateAlarmItems = () => {
-    
-    saveAlarmStorage();
-
-    let alarmItems = alarmList.querySelectorAll('.alarm-item');
-
-    alarmItems.forEach(item => item.remove());
-    alarms.forEach(alarm => addAlarmItem(alarm));
-
-    alarmItems = alarmList.querySelectorAll('.alarm-item'); // get items again
-    addEventListenerToAlarmItems(alarmItems);
-};
-
-const addEventListenerToAlarmItems = alarmItems => {
-    alarmItems.forEach((item, index) => {
-        item.onpointerdown = downEvent => {
-            let originY = downEvent.clientY;
-            let originScroll = alarmList.scrollTop;
-
-            item.classList.add('holded');
-            let openModal = setTimeout(() => removeAlarmItem(item, index), 600);
-
-            document.onpointermove = moveEvent => {
-                alarmList.scrollTop = originScroll - (moveEvent.clientY - originY);
-
-                if (Math.abs(originY - moveEvent.clientY) < 16) return;
-
-                clearTimeout(openModal);
-                item.classList.remove('holded');
-            };
-
-            document.onpointerup = upEvent => {
-                clearTimeout(openModal);
-                item.classList.remove('holded');
-
-                if (Math.abs(originY - upEvent.clientY) < 16) editAlarmItem(index);
-
-                document.onpointermove = null;
-                document.onpointerup = null;
-            };
-        };
-    });
 }
 
-const editAlarmItem = index => {
-    currentAlarm = alarms[index];
+const editAlarmItem = alarm => {
+    alarmEditMode = 1;
+    currentAlarm = alarm;
     setAlarmModal(currentAlarm);
     openAlarmModal();
 };
 
-const removeAlarmItem = (item, index) => {
+const removeAlarmItem = (item, alarm) => {
     if (confirm('삭제하시겠습니까?')) {
+        alarms.splice(alarms.indexOf(alarm), 1);
         item.remove();
-        alarms.splice(index, 1);
     }
     document.onpointermove = null;
     document.onpointerup = null;
 
-    updateAlarmItems();
+    saveAlarmStorage();
+};
+
+const addEventListenerToAlarmItem = (item, alarm) => {
+    item.onpointerdown = downEvent => {
+        const originY = downEvent.clientY;
+        const originScroll = alarmList.scrollTop;
+        const TOUCH_BOUND = 16;
+
+        item.classList.add('holded');
+        let openModalTimer = setTimeout(() => removeAlarmItem(item, alarm), 600);
+
+        document.onpointermove = moveEvent => {
+            alarmList.scrollTop = originScroll - (moveEvent.clientY - originY);
+
+            if (Math.abs(originY - moveEvent.clientY) < TOUCH_BOUND) return;
+
+            clearTimeout(openModalTimer);
+            item.classList.remove('holded');
+        };
+
+        document.onpointerup = upEvent => {
+            clearTimeout(openModalTimer);
+            item.classList.remove('holded');
+
+            if (Math.abs(originY - upEvent.clientY) < TOUCH_BOUND) editAlarmItem(alarm);
+
+            document.onpointermove = null;
+            document.onpointerup = null;
+        };
+    };
 };
 
 const compareDays = (a, b) => {
@@ -360,10 +356,9 @@ const playAlarm = alarm => {
     alarm.checkable = false;
     setTimeout(() => alarm.checkable = true, 60000);
 
-    if (!alarm.repeat) {
-        alarm.enable = false;
-        updateAlarmItems();
-    }
+    if (!alarm.repeat) alarm.enable = false;
+
+    setAlarmItem(getAlarmItem(alarm), alarm);
 };
 
 const saveAlarmStorage = () => {
@@ -373,7 +368,8 @@ const saveAlarmStorage = () => {
 const loadAlarmStorage = () => {
     let res = JSON.parse(localStorage.getItem(ALARMS_LOCAL));
     alarms = res || [];
-    updateAlarmItems();
+
+    alarms.forEach(addAlarmItem);
 }
 
 addDraggingEventToDials(alarmDials, alarmDialValues, ALARM_DIAL_LIMITS);
@@ -385,15 +381,22 @@ dayItems.forEach(item => item.onclick = () => {
 });
 
 alarmAddButton.onclick = () => {
+    alarmEditMode = 0;
     currentAlarm = null;
     resetAlarmModal();
     openAlarmModal();
 };
 
 alarmModal.querySelector('.ok').onclick = () => {
-    if (!currentAlarm) currentAlarm = addAlarm();
-    setAlarm(currentAlarm);
-    updateAlarmItems();
+    if (alarmEditMode === 0) {
+        currentAlarm = addAlarm();
+        setAlarm(currentAlarm);
+        addAlarmItem(currentAlarm);
+    } else if (alarmEditMode === 1) {
+        setAlarm(currentAlarm);
+        setAlarmItem(getAlarmItem(currentAlarm), currentAlarm);
+    }
+    saveAlarmStorage();
     closeAlarmModal();
 };
 
@@ -429,8 +432,8 @@ const stopwatchStopMode = () => {
 };
 
 const updateStopwatch = () => {
-    t = Date.now() - stopwatchStartTime;
-    let times = millisecondToTimes(stopwatchMs + t);
+    stopwatchT = Date.now() - stopwatchStartTime;
+    let times = millisecondToTimes(stopwatchMs + stopwatchT);
     stopwatchDisplay.textContent =
         `${fillDigit(times.minute)}:${fillDigit(times.second)}.${fillDigit(times.miniSecond)}`;
 };
@@ -445,13 +448,13 @@ const startStopwatch = () => {
 const stopStopwatch = () => {
     stopwatchStartMode();
     clearInterval(stopwatchSchedule);
-    stopwatchMs += t;
+    stopwatchMs += stopwatchT;
 };
 
 const resetStopwatch = () => {
     stopStopwatch();
     stopwatchMs = 0;
-    t = 0;
+    stopwatchT = 0;
 
     stopwatchDisplay.textContent = '00:00.00';
     stopwatchRecord.parentElement.classList.remove('activated');

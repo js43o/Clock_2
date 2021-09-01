@@ -1,8 +1,8 @@
 /* Page */
 
-let pageWrapper = document.querySelector('.page-wrapper');
-let pages = document.querySelectorAll('.page section');
-let menu = document.querySelector('.menu');
+const pageWrapper = document.querySelector('.page-wrapper');
+const pages = document.querySelectorAll('.page section');
+const menu = document.querySelector('.menu');
 let currentMenu = menu.children[0];
 let currentMenuIndex = 0;
 let resizeTimerId;
@@ -76,7 +76,7 @@ const boundDialValue = (dialName, dialLimiter, movement) =>
     Math.max(Math.min(movement, 0), -dialLimiter[dialName] * DIAL_HEIGHT);
 
 const millisecondToTimes = ms => {
-    let times = {};
+    const times = {};
     times.hour = Math.floor((ms / (1000 * 60 * 60)) % 60);
     times.minute = Math.floor((ms / (1000 * 60)) % 60);
     times.second = Math.floor((ms / 1000) % 60);
@@ -91,21 +91,21 @@ const getMsByTimerDial = () => {
     let second = -timerDialValues.second / DIAL_HEIGHT;
 
     return (hour * 60 * 60 + minute * 60 + second) * 1000;
-}
+};
 
 const resetDialValues = dialValues => {
     for (let key of Object.keys(dialValues)) {
         dialValues[key] = 0;
     }
     return dialValues;
-}
+};
 
 const moveDialsByDialValues = (dialElems, dialValues) => {
     dialElems.forEach(dialElem => {
         let dial = getDialName(dialElem);
         dialElem.style.top = `-${dialValues[dial] * DIAL_HEIGHT}px`;
     });
-}
+};
 
 const lockDials = dialWrapper => dialWrapper.classList.add('locked');
 const unlockDials = dialWrapper => dialWrapper.classList.remove('locked');
@@ -113,12 +113,12 @@ const unlockDials = dialWrapper => dialWrapper.classList.remove('locked');
 
 /* Clock */
 
-let scales = document.querySelectorAll('.clock__scale > div');
-let numberWrappers = document.querySelectorAll('.clock__number > div');
-let numbers = document.querySelectorAll('.clock__number > div > div');
-let hands = document.querySelector('.clock__hands').children;
-let date = document.querySelector('.clock__indicator__date');
-let time = document.querySelector('.clock__indicator__time');
+const scales = document.querySelectorAll('.clock__scale > div');
+const numberWrappers = document.querySelectorAll('.clock__number > div');
+const numbers = document.querySelectorAll('.clock__number > div > div');
+const hands = document.querySelector('.clock__hands').children;
+const date = document.querySelector('.clock__indicator__date');
+const time = document.querySelector('.clock__indicator__time');
 
 const rotateElem = (elem, deg) => elem.style.transform = `rotate(${deg}deg)`;
 
@@ -172,17 +172,17 @@ let alarms = [];
 let alarmDialValues = { meridiem: 0, hour: 0, minute: 0 };
 let selectedDays = new Set();
 let currentAlarm;
-let alarmEditMode = 0; // 0 = add, 1 = edit
+let alarmEditMode = 'ADD';
 
-let alarmPage = document.querySelector('.page__alarm');
-let alarmList = document.querySelector('.alarm-list');
-let alarmAddButton = document.querySelector('.alarm-adder');
-let alarmModal = document.querySelector('.alarm-modal');
-let alarmDials = document.querySelectorAll('.alarm-modal .time-selector');
-let dayItems = document.querySelectorAll('.day-selector li');
-let alarmName = document.querySelector('input#alarm-name');
-let isRepeated = document.querySelector('input#alarm-repeated');
-let isEnabled = document.querySelector('input#alarm-enabled');
+const alarmPage = document.querySelector('.page__alarm');
+const alarmList = document.querySelector('.alarm-list');
+const alarmAddButton = document.querySelector('.alarm-adder');
+const alarmModal = document.querySelector('.alarm-modal');
+const alarmDials = document.querySelectorAll('.alarm-modal .time-selector');
+const dayItems = document.querySelectorAll('.day-selector li');
+const alarmName = document.querySelector('input#alarm-name');
+const isRepeated = document.querySelector('input#alarm-repeated');
+const isEnabled = document.querySelector('input#alarm-enabled');
 
 class Alarm {
     constructor(name, enable, checkable, repeat, meridiem, hour, minute, days) {
@@ -211,21 +211,20 @@ const closeAlarmModal = () => {
 
 const resetAlarmModal = () => {
     setAlarmModal(new Alarm('', true, true, false, 0, 0, 0, []));
-    selectedDays.clear();
-    dayItems.forEach(item => item.classList.remove('selected'));
 };
 
 const setAlarmModal = alarm => {
     setAlarmDialValues(alarm.meridiem, alarm.hour, alarm.minute);
-    alarm.days.forEach(day => selectedDays.add(day));
-
     alarmDials.forEach(dial => dial.style.top = alarmDialValues[dial.className.split(' ')[1]] + 'px');
-    dayItems.forEach(item => alarm.days.includes(item.textContent) ?
-        item.classList.add('selected') : item.classList.remove('selected'));
+
+    selectedDays.clear();
+    alarm.days.forEach(day => selectedDays.add(day));
+    dayItems.forEach(item => alarm.days.includes(item.textContent) ? item.classList.add('selected') : item.classList.remove('selected'));
+    
     alarmName.value = alarm.name;
     isEnabled.checked = alarm.enable;
     isRepeated.checked = alarm.repeat;
-}
+};
 
 const setAlarmDialValues = (mer, h, m) => {
     alarmDialValues.meridiem = -mer * DIAL_HEIGHT;
@@ -234,7 +233,7 @@ const setAlarmDialValues = (mer, h, m) => {
 };
 
 const addAlarm = () => {
-    let alarm = new Alarm('', true, true, false, 0, 0, 0, []);
+    const alarm = new Alarm('', true, true, false, 0, 0, 0, []);
     alarms.push(alarm);
 
     return alarm;
@@ -250,10 +249,10 @@ const setAlarm = alarm => {
     alarm.minute = -alarmDialValues.minute / DIAL_HEIGHT;
     alarm.days = [];
     selectedDays.forEach(day => alarm.days.push(day));
-}
+};
 
 const addAlarmItem = alarm => {
-    let alarmItem = document.createElement('li');
+    const alarmItem = document.createElement('li');
     alarmItem.className = 'alarm-item';
 
     setAlarmItem(alarmItem, alarm);
@@ -272,34 +271,43 @@ const setAlarmItem = (alarmItem, alarm) => {
         alarm.hour < 10 ? '0' + alarm.hour : alarm.hour}:${
         alarm.minute < 10 ? '0' + alarm.minute : alarm.minute}</div>
         <ul class="week-list">`;
-
     DAYS_NAME.forEach(day => {
         alarmHTML += alarm.days.includes(day) ?
             `<li class="selected">${day}</li>` : `<li class="no-selected">${day}</li>`;
     });
-
     alarmHTML += `</ul>${alarm.repeat ? '<i class="fas fa-sync-alt"></i>' : ''}`;
 
     alarmItem.innerHTML = '';
     alarmItem.insertAdjacentHTML('beforeend', alarmHTML);
-}
+};
 
-const editAlarmItem = alarm => {
-    alarmEditMode = 1;
+const addAlarmItemAction = () => {
+    alarmEditMode = 'ADD';
+    currentAlarm = null;
+    resetAlarmModal();
+    openAlarmModal();
+};
+
+const editAlarmItemAction = alarm => {
+    alarmEditMode = 'EDIT';
     currentAlarm = alarm;
     setAlarmModal(currentAlarm);
     openAlarmModal();
 };
 
-const removeAlarmItem = (item, alarm) => {
-    if (confirm('삭제하시겠습니까?')) {
-        alarms.splice(alarms.indexOf(alarm), 1);
-        item.remove();
-    }
+const removeAlarmItemAction = (item, alarm) => {
+    if (confirm('삭제하시겠습니까?')) removeAlarmItem(item, alarm);
+    item.classList.remove('holded');
+
     document.onpointermove = null;
     document.onpointerup = null;
 
     saveAlarmStorage();
+};
+
+const removeAlarmItem = (item, alarm) => {
+    alarms.splice(alarms.indexOf(alarm), 1);
+    item.remove();
 };
 
 const addEventListenerToAlarmItem = (item, alarm) => {
@@ -309,7 +317,7 @@ const addEventListenerToAlarmItem = (item, alarm) => {
         const TOUCH_BOUND = 16;
 
         item.classList.add('holded');
-        let openModalTimer = setTimeout(() => removeAlarmItem(item, alarm), 600);
+        let openModalTimer = setTimeout(() => removeAlarmItemAction(item, alarm), 600);
 
         document.onpointermove = moveEvent => {
             alarmList.scrollTop = originScroll - (moveEvent.clientY - originY);
@@ -324,7 +332,7 @@ const addEventListenerToAlarmItem = (item, alarm) => {
             clearTimeout(openModalTimer);
             item.classList.remove('holded');
 
-            if (Math.abs(originY - upEvent.clientY) < TOUCH_BOUND) editAlarmItem(alarm);
+            if (Math.abs(originY - upEvent.clientY) < TOUCH_BOUND) editAlarmItemAction(alarm);
 
             document.onpointermove = null;
             document.onpointerup = null;
@@ -351,7 +359,7 @@ const checkAlarm = () => {
 };
 
 const playAlarm = alarm => {
-    alert(`알람! ${alarm.name}`);
+    alert(`*** 알람 ***\n${alarm.name} - ${alarm.hour}:${alarm.minute}`);
 
     alarm.checkable = false;
     setTimeout(() => alarm.checkable = true, 60000);
@@ -359,18 +367,28 @@ const playAlarm = alarm => {
     if (!alarm.repeat) alarm.enable = false;
 
     setAlarmItem(getAlarmItem(alarm), alarm);
+    saveAlarmStorage();
 };
 
-const saveAlarmStorage = () => {
-    localStorage.setItem(ALARMS_LOCAL, JSON.stringify(alarms));
-}
+const saveAlarmStorage = () => localStorage.setItem(ALARMS_LOCAL, JSON.stringify(alarms));
 
 const loadAlarmStorage = () => {
-    let res = JSON.parse(localStorage.getItem(ALARMS_LOCAL));
-    alarms = res || [];
-
+    alarms = JSON.parse(localStorage.getItem(ALARMS_LOCAL)) || [];
     alarms.forEach(addAlarmItem);
-}
+};
+
+const submitAlarmModal = () => {
+    if (alarmEditMode === 'ADD') {
+        currentAlarm = addAlarm();
+        setAlarm(currentAlarm);
+        addAlarmItem(currentAlarm);
+    } else if (alarmEditMode === 'EDIT') {
+        setAlarm(currentAlarm);
+        setAlarmItem(getAlarmItem(currentAlarm), currentAlarm);
+    }
+    saveAlarmStorage();
+    closeAlarmModal();
+};
 
 addDraggingEventToDials(alarmDials, alarmDialValues, ALARM_DIAL_LIMITS);
 
@@ -380,37 +398,19 @@ dayItems.forEach(item => item.onclick = () => {
         ? selectedDays.delete(item.textContent) : selectedDays.add(item.textContent);
 });
 
-alarmAddButton.onclick = () => {
-    alarmEditMode = 0;
-    currentAlarm = null;
-    resetAlarmModal();
-    openAlarmModal();
-};
-
-alarmModal.querySelector('.ok').onclick = () => {
-    if (alarmEditMode === 0) {
-        currentAlarm = addAlarm();
-        setAlarm(currentAlarm);
-        addAlarmItem(currentAlarm);
-    } else if (alarmEditMode === 1) {
-        setAlarm(currentAlarm);
-        setAlarmItem(getAlarmItem(currentAlarm), currentAlarm);
-    }
-    saveAlarmStorage();
-    closeAlarmModal();
-};
-
+alarmAddButton.onclick = addAlarmItemAction;
+alarmModal.querySelector('.ok').onclick = submitAlarmModal;
 alarmModal.querySelector('.cancel').onclick = closeAlarmModal;
 
 
 /* Stopwatch */
 
-let stopwatchDisplay = document.querySelector('.page__stopwatch .time');
-let stopwatchRecord = document.querySelector('.page__stopwatch .records ul');
-let stopwatchStartButton = document.querySelector('.page__stopwatch .buttons .start');
-let stopwatchStopButton = document.querySelector('.page__stopwatch .buttons .stop');
-let stopwatchRecordButton = document.querySelector('.page__stopwatch .buttons .record');
-let stopwatchResetButton = document.querySelector('.page__stopwatch .buttons .reset');
+const stopwatchDisplay = document.querySelector('.page__stopwatch .time');
+const stopwatchRecord = document.querySelector('.page__stopwatch .records ul');
+const stopwatchStartButton = document.querySelector('.page__stopwatch .buttons .start');
+const stopwatchStopButton = document.querySelector('.page__stopwatch .buttons .stop');
+const stopwatchRecordButton = document.querySelector('.page__stopwatch .buttons .record');
+const stopwatchResetButton = document.querySelector('.page__stopwatch .buttons .reset');
 
 let containerHeight = 0;
 let stopwatchSchedule;
@@ -480,9 +480,9 @@ const moveRecordToBottom = () => {
 
 stopwatchRecord.onpointerdown = downEvent => {
     stopwatchRecord.classList.add('no-transition');
-    let originY = downEvent.clientY;
+    const originY = downEvent.clientY;
     let moveValue = originY;
-    let resultY;
+    let resultY = 0;
 
     document.onpointermove = moveEvent => {
         moveValue = originY - moveEvent.clientY;
@@ -493,7 +493,7 @@ stopwatchRecord.onpointerdown = downEvent => {
 
     document.onpointerup = () => {
         stopwatchRecord.classList.remove('no-transition');
-        recordPos = resultY;
+        recordPos = resultY !== 0 ? resultY : recordPos;
 
         document.onpointermove = null;
         document.onpointerup = null;
@@ -508,11 +508,11 @@ stopwatchResetButton.onclick = resetStopwatch;
 
 /* Timer */
 
-let timerDialsWrapper = document.querySelector('.page__timer .time-selector-wrapper');
-let timerDials = document.querySelectorAll('.page__timer .time-selector');
-let timerStartButton = document.querySelector('.page__timer .buttons .start');
-let timerStopButton = document.querySelector('.page__timer .buttons  .stop');
-let timerResetButton = document.querySelector('.page__timer .buttons .reset');
+const timerDialsWrapper = document.querySelector('.page__timer .time-selector-wrapper');
+const timerDials = document.querySelectorAll('.page__timer .time-selector');
+const timerStartButton = document.querySelector('.page__timer .buttons .start');
+const timerStopButton = document.querySelector('.page__timer .buttons  .stop');
+const timerResetButton = document.querySelector('.page__timer .buttons .reset');
 
 const TIMER_DIAL_LIMIT = { hour: 59, minute: 59, second: 59 };
 let timerDialValues = { hour: 0, minute: 0, second: 0 };
@@ -525,19 +525,19 @@ const timerStartMode = () => {
     timerStartButton.style.display = 'none';
     timerStopButton.style.display = 'block';
     lockDials(timerDialsWrapper);
-}
+};
 
 const timerStopMode = () => {
     timerStartButton.style.display = 'block';
     timerStopButton.style.display = 'none';
-}
+};
 
 const startTimer = () => {
     timerStartMode();
     timerStartTime = Date.now();
     timerMs = timerMs <= 0 ? getMsByTimerDial() : timerMs;
     timerSchedule = setInterval(updateTimer, 100);
-}
+};
 
 const updateTimer = () => {
     if (timerMs - timerT <= 0) {
@@ -547,19 +547,19 @@ const updateTimer = () => {
     }
     timerT = Date.now() - timerStartTime;
 
-    let times = millisecondToTimes(timerMs - timerT);
+    const times = millisecondToTimes(timerMs - timerT);
     timerDialValues.hour = times.hour;
     timerDialValues.minute = times.minute;
     timerDialValues.second = times.second;
 
     moveDialsByDialValues(timerDials, timerDialValues);
-}
+};
 
 const stopTimer = () => {
     timerStopMode();
     clearInterval(timerSchedule);
     timerMs -= timerT;
-}
+};
 
 const resetTimer = () => {
     stopTimer();
@@ -569,7 +569,7 @@ const resetTimer = () => {
     timerStartButton.classList.add('disabled');
 
     moveDialsByDialValues(timerDials, resetDialValues(timerDialValues));
-}
+};
 
 timerStartButton.onclick = startTimer;
 timerStopButton.onclick = stopTimer;
@@ -579,15 +579,13 @@ addDraggingEventToDials(timerDials, timerDialValues, TIMER_DIAL_LIMIT);
 
 timerDialsWrapper.onpointerdown = () => {
     const pointerUp = () => {
-        if (timerDialValues.hour === 0 && timerDialValues.minute === 0 && timerDialValues.second === 0) {
-            timerStartButton.classList.add('disabled');
-        } else {
-            timerStartButton.classList.remove('disabled');
-        }
+        timerDialValues.hour === 0 && timerDialValues.minute === 0 && timerDialValues.second === 0 ?
+            timerStartButton.classList.add('disabled') : timerStartButton.classList.remove('disabled');
+
         document.removeEventListener('pointerup', pointerUp);
     };
     document.addEventListener('pointerup', pointerUp);
-}
+};
 
 
 // prevent default events
@@ -600,6 +598,6 @@ const init = () => {
     startClock();
     loadAlarmStorage();
     alarmSchedule = setInterval(checkAlarm, 5000);
-}
+};
 
 init();
